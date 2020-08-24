@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework", "Framework\Framework.csproj", "{93D8F8E5-001B-4BF6-BA25-2FC7EC3F085A}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Armadillo", "Armadillo\Armadillo.sqlproj", "{5179F99A-057F-4A88-9397-89FE67C5D6B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{C60EC595-A26E-4B7A-8CDB-32E2D0208273}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,16 @@ Global
 		{93D8F8E5-001B-4BF6-BA25-2FC7EC3F085A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93D8F8E5-001B-4BF6-BA25-2FC7EC3F085A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93D8F8E5-001B-4BF6-BA25-2FC7EC3F085A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5179F99A-057F-4A88-9397-89FE67C5D6B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5179F99A-057F-4A88-9397-89FE67C5D6B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5179F99A-057F-4A88-9397-89FE67C5D6B9}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{5179F99A-057F-4A88-9397-89FE67C5D6B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5179F99A-057F-4A88-9397-89FE67C5D6B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5179F99A-057F-4A88-9397-89FE67C5D6B9}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{C60EC595-A26E-4B7A-8CDB-32E2D0208273}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C60EC595-A26E-4B7A-8CDB-32E2D0208273}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C60EC595-A26E-4B7A-8CDB-32E2D0208273}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C60EC595-A26E-4B7A-8CDB-32E2D0208273}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

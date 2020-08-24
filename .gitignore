@@ -1,0 +1,18 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Pangolin/Armadillo/Armadillo.dbmdl
+/Pangolin/Armadillo/Armadillo.jfm
+/Pangolin/UnitTest/obj
+/Pangolin/Armadillo/bin/Debug
+/Pangolin/Armadillo/obj/Debug
+/Pangolin/UnitTest/bin/Debug/netcoreapp3.1
+/Pangolin/Framework/bin/Debug/netcoreapp3.1
+/Pangolin/Framework/obj/Debug/netcoreapp3.1/Framework.dll
+/Pangolin/Framework/obj/Debug/netcoreapp3.1/Framework.pdb
+/Pangolin/Framework/obj/Debug/netcoreapp3.1/Framework.csproj.CoreCompileInputs.cache
+/Pangolin/Framework/obj/Debug/netcoreapp3.1/Framework.csproj.FileListAbsolute.txt
+/Pangolin/Framework/obj/Release/netcoreapp3.1/Framework.AssemblyInfo.cs
+/Pangolin/Framework/obj/Release/netcoreapp3.1/Framework.AssemblyInfoInputs.cache
+/Pangolin/Framework/obj/Release/netcoreapp3.1/Framework.assets.cache
