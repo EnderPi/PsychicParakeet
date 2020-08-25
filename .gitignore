@@ -16,14 +16,8 @@
 /Pangolin/Framework/obj/Release/netcoreapp3.1/Framework.AssemblyInfo.cs
 /Pangolin/Framework/obj/Release/netcoreapp3.1/Framework.AssemblyInfoInputs.cache
 /Pangolin/Framework/obj/Release/netcoreapp3.1/Framework.assets.cache
-/Pangolin/.vs/Pangolin/v16/TestStore/0/testlog.manifest
-/Pangolin/.vs/Pangolin/v16/TestStore/0/000.testlog
-/Pangolin/.vs/Pangolin/v16/.suo
-/Pangolin/.vs/Pangolin/DesignTimeBuild/.dtbcache.v2
-/.vs/VSWorkspaceState.json
-/.vs/slnx.sqlite
-/.vs/PsychicParakeet/v16/.suo
-/.vs/ProjectSettings.json
+/Pangolin/.vs
+/.vs
 /Pangolin/Framework/obj/project.nuget.cache
 /Pangolin/Framework/obj/project.assets.json
 /Pangolin/Framework/obj/Framework.csproj.nuget.g.targets
@@ -34,3 +28,5 @@
 /Pangolin/Framework/obj/Debug/netcoreapp3.1/Framework.AssemblyInfoInputs.cache
 /Pangolin/Framework/obj/Debug/netcoreapp3.1/Framework.AssemblyInfo.cs
 /Pangolin/Armadillo/Armadillo.sqlproj.user
+/Pangolin/LogViewer/bin
+/Pangolin/LogViewer/obj

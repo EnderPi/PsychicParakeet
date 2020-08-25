@@ -64,6 +64,8 @@
     <Build Include="Schema.sql" />
     <Build Include="Configuration\DatabaseScriptHistory.sql" />
     <Build Include="Logging\CreateLog.sql" />
+    <Build Include="Logging\GetLogCount.sql" />
+    <Build Include="Logging\GetRecentLogs.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

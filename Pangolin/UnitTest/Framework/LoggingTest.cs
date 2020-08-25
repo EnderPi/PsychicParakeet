@@ -9,6 +9,7 @@ namespace UnitTest.Framework
 {
     public class LoggingTest
     {
+        //"Server=(localdb)\\mssqllocaldb;Database=aspnet-LogViewer-E2A8655F-A68B-4562-AE75-7EE36E643F03;Trusted_Connection=True;MultipleActiveResultSets=true"
         private string _connectionString = "Server=localhost;Integrated Security = SSPI; Database=PangolinDev;Trusted_Connection=True;";
 
         [SetUp]
