@@ -66,6 +66,10 @@
     <Build Include="Logging\CreateLog.sql" />
     <Build Include="Logging\GetLogCount.sql" />
     <Build Include="Logging\GetRecentLogs.sql" />
+    <Build Include="Logging\LogDetail.sql" />
+    <Build Include="Logging\CreateLogWithDetails.sql" />
+    <Build Include="Logging\LogDetails.sql" />
+    <Build Include="Logging\GetLogDetails.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

@@ -45,5 +45,25 @@ namespace UnitTest.Framework
                 }
             }            
         }
+
+        [Test]
+        public void TestLoggerWithDetails()
+        {
+            LogDataAccess logDataAccess = new LogDataAccess(_connectionString);
+            string logSource = "Cow";
+            Logger logger = new Logger(logDataAccess, logSource, LoggingLevel.Debug | LoggingLevel.Error);
+            string testData = Guid.NewGuid().ToString();
+            LogDetails details = new LogDetails();
+            details.AddDetail("order ID", "123456");
+            details.AddDetail("User", "Tim the Enchanter");
+            details.AddDetail("Customer ID", "123456");
+            logger.Log(testData, LoggingLevel.Debug, details);
+            var exists = FindLogMessage(_connectionString, logSource, testData, LoggingLevel.Debug);
+            Assert.IsTrue(exists);
+        }
+
+
+
+
     }
 }
