@@ -11,4 +11,11 @@ Post-Deployment Script Template
 */
 DECLARE @VersionGuid UNIQUEIDENTIFIER
 
+SET @VersionGuid = 'E91B892D-A1D0-4D2A-80B3-2F61990D11DB'
+IF NOT EXISTS (SELECT 1 FROM [Configuration].[DatabaseScriptHistory] WHERE [Id] = @VersionGuid)
+BEGIN
+
+    INSERT INTO [Configuration].[DatabaseScriptHistory] ([Id], [Description], [TimeStamp])
+        VALUES (@VersionGuid, 'Junk Logging Data', CURRENT_TIMESTAMP)
+END
 

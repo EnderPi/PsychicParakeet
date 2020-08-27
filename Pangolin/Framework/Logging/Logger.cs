@@ -85,7 +85,7 @@ namespace EnderPi.Framework.Logging
         /// <param name="message">The string statement to write to the log.</param>
         /// <param name="level">The logging level associated with this message.</param>
         /// <exception cref="">None</exception>
-        public void Log(string message, LoggingLevel level)
+        public void Log(string message, LoggingLevel level, LogDetails details)
         {
             if (!string.IsNullOrWhiteSpace(message) && level != LoggingLevel.None)
             {
@@ -94,13 +94,20 @@ namespace EnderPi.Framework.Logging
                     if ((_levelsToLog & level) == level)
                     {
                         LogMessage logMessage = new LogMessage(0, _source, DateTime.Now, level, message);
-                        _logDataAccess.WriteLogRecord(logMessage);
+                        _logDataAccess.WriteLogRecord(logMessage, details);
                     }
                 }
                 catch (Exception)
                 { }
             }
         }
+
+
+        public void Log(string message, LoggingLevel level)
+        {
+            Log(message, level, null);
+        }
+
 
     }
 }

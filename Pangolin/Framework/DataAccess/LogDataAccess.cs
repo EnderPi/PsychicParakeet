@@ -21,12 +21,17 @@ namespace EnderPi.Framework.DataAccess
             _connectionString = connectionString;
         }
 
-        public void WriteLogRecord(LogMessage logMessage)
+        public void WriteLogRecord(LogMessage logMessage, LogDetails details)
         {
             using (var sqlConnection = new SqlConnection(_connectionString))
             {
-                using (var command = new SqlCommand("[Logging].[CreateLog]", sqlConnection))
+                using (var command = new SqlCommand("[Logging].[CreateLogWithDetails]", sqlConnection))
                 {
+                    SqlParameter parameter;
+                    parameter = command.Parameters.AddWithValue("@LogDetails", CreateDataTable(details));
+                    parameter.SqlDbType = SqlDbType.Structured;
+                    parameter.TypeName = "[Logging].[LogDetails]";
+                    
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.Add("@Source", SqlDbType.VarChar, 100).Value = logMessage.Source;
                     command.Parameters.Add("@TimeStamp", SqlDbType.DateTime).Value = logMessage.TimeStamp;
@@ -36,6 +41,21 @@ namespace EnderPi.Framework.DataAccess
                     command.ExecuteNonQuery();
                 }
             }                
+        }
+
+        private static DataTable CreateDataTable(LogDetails details)
+        {
+            DataTable table = new DataTable();
+            table.Columns.Add("Key", typeof(string));
+            table.Columns.Add("Value", typeof(string));
+            if (details != null)
+            {
+                foreach (var detail in details.Values)
+                {
+                    table.Rows.Add(detail.Item1, detail.Item2);
+                }
+            }
+            return table;
         }
 
         public int GetCurrentCount()
@@ -86,5 +106,33 @@ namespace EnderPi.Framework.DataAccess
             }
         }
 
+        public void WriteLogRecord(LogMessage logMessage)
+        {
+            WriteLogRecord(logMessage, null);
+        }
+
+        public LogDetails GetLogDetails(long Id)
+        {
+            LogDetails details = new LogDetails();
+            using (var sqlConnection = new SqlConnection(_connectionString))
+            {
+                using (var command = new SqlCommand("[Logging].[GetLogDetails]", sqlConnection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add("@Id", SqlDbType.BigInt).Value = Id;
+                    sqlConnection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        int keypos = reader.GetOrdinal("Key");
+                        int valuePos = reader.GetOrdinal("Value");
+                        while (reader.Read())
+                        {
+                            details.AddDetail(reader.GetString(keypos), reader.GetString(valuePos));
+                        }
+                    }
+                }
+            }
+            return details;
+        }
     }
 }

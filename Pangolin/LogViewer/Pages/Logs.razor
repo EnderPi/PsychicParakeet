@@ -5,7 +5,43 @@
 
 <p>Records: @currentCount</p>
 
-<button class="btn btn-primary" @onclick="RefreshCount">Click me</button>
+<div>
+    <button class="btn btn-primar" @onclick="@(()=>HandleRowClick(11))">Click me</button>
+</div>
+
+@if (Show)
+{
+
+    <div class="pop-container">
+        <div class="popconfirm">
+            <h4>Log Details</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Details != null)
+                    {
+                        @foreach (var detail in Details.Values)
+                        {
+                            <tr>
+                                <td>@detail.Item1</td>
+                                <td>@detail.Item2</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+            <button type="button" class="btn btn-primary" @onclick="() => Confirmation()">Close</button>
+        </div>
+
+
+    </div>
+}
 
 <table class="table">
     <thead>
@@ -15,34 +51,41 @@
             <th>TimeStamp</th>
             <th>Log Level</th>
             <th>Message</th>
+            <th>Details</th>
         </tr>
     </thead>
     <tbody>
+
         @foreach (var logMessage in logMessages)
-        {            
-        <tr @onclick="@(e=>HandleRowClick(logMessage.Id))">
-            <td>@logMessage.Id</td>
-            <td>@logMessage.Source</td>
-            <td>@logMessage.TimeStamp.ToLongTimeString()</td>
-            <td>@logMessage.LogLevel</td>
-            <td>@logMessage.Message</td>
-        </tr>
+        {
+            <tr>
+                <td>@logMessage.Id</td>
+                <td>@logMessage.Source</td>
+                <td>@logMessage.TimeStamp.ToLongTimeString()</td>
+                <td>@logMessage.LogLevel</td>
+                <td>@logMessage.Message</td>
+                <td><button class="btn btn-primary" @onclick="@(()=>HandleRowClick(logMessage.Id))">Details</button></td>
+            </tr>
         }
     </tbody>
 </table>
 
 @code {
+    protected LogDetails LogDetailsComponent;
+
     private EnderPi.Framework.DataAccess.LogDataAccess logDataAccess = new EnderPi.Framework.DataAccess.LogDataAccess("Server=localhost;Integrated Security = SSPI; Database=PangolinDev;Trusted_Connection=True;");
 
     private int currentCount = 0;
 
     private EnderPi.Framework.Logging.LogMessage[] logMessages;
 
+    private bool Show { set; get; }
+
+    public EnderPi.Framework.Logging.LogDetails Details { set; get; }
+
     protected override Task OnInitializedAsync()
     {
-        currentCount = logDataAccess.GetCurrentCount();
-        logMessages = logDataAccess.GetTopLogMessages(10);
-
+        RefreshCount();
         return base.OnInitializedAsync();
     }
 
@@ -54,7 +97,16 @@
 
     private void HandleRowClick(long logId)
     {
+        currentCount++;
+        Details = logDataAccess.GetLogDetails(logId);
+        Show = true;
         //show that pop-up with the key-value pairs.
+
+    }
+
+    public void Confirmation()
+    {
+        Show = false;
     }
 
 }
