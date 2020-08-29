@@ -1,7 +1,6 @@
 ﻿using EnderPi.Framework.Interfaces;
 using EnderPi.Framework.Logging;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -134,5 +133,22 @@ namespace EnderPi.Framework.DataAccess
             }
             return details;
         }
+
+        public LogMessage[] SearchLogMessages(string source, DateTime beginTime, DateTime endTime)
+        {
+            using (var sqlConnection = new SqlConnection(_connectionString))
+            {
+                using (var command = new SqlCommand("[Logging].[SearchLogs]", sqlConnection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add("@Source", SqlDbType.VarChar, 100).Value = source;
+                    command.Parameters.Add("@BeginTime", SqlDbType.DateTime).Value = beginTime;
+                    command.Parameters.Add("@EndTime", SqlDbType.DateTime).Value = endTime;
+                    sqlConnection.Open();
+                    return ReadLogMessages(command).ToArray();
+                }
+            }
+        }
+
     }
 }

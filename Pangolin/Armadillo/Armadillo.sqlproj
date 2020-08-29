@@ -70,6 +70,7 @@
     <Build Include="Logging\CreateLogWithDetails.sql" />
     <Build Include="Logging\LogDetails.sql" />
     <Build Include="Logging\GetLogDetails.sql" />
+    <Build Include="Logging\SearchLogs.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

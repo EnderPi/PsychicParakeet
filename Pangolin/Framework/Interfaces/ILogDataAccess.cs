@@ -1,5 +1,5 @@
 ﻿using EnderPi.Framework.Logging;
-using System.Collections.Generic;
+using System;
 
 namespace EnderPi.Framework.Interfaces
 {
@@ -9,6 +9,8 @@ namespace EnderPi.Framework.Interfaces
         public void WriteLogRecord(LogMessage logMessage, LogDetails details);
 
         public LogDetails GetLogDetails(long Id);
+
+        public LogMessage[] SearchLogMessages(string source, DateTime beginTime, DateTime endTime);
 
     }
 }

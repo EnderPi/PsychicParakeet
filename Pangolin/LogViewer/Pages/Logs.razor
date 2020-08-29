@@ -5,42 +5,57 @@
 
 <p>Records: @currentCount</p>
 
-<div>
-    <button class="btn btn-primar" @onclick="@(()=>HandleRowClick(11))">Click me</button>
-</div>
+<EditForm Model="SearchModel">
+    <table>
+        <tr>
+            <td>Source:</td>
+            <td><InputText @bind-Value="SearchModel.Source" /></td>
+        </tr>
+
+        <tr>
+            <td>Begin Date:</td>
+            <td><input type="datetime" @bind="SearchModel.BeginTime" /></td>
+        </tr>
+
+        <tr>
+            <td>End Date:</td>
+            <td><input type="datetime" @bind="SearchModel.EndTime" /></td>
+        </tr>                
+    </table>
+</EditForm>
+<p>
+    <button type="button" class="btn btn-primary" @onclick="SearchLogs">Search</button>
+</p>
 
 @if (Show)
 {
-
     <div class="pop-container">
-        <div class="popconfirm">
-            <h4>Log Details</h4>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Key</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Details != null)
+    <div class="popconfirm">
+        <h4>Log Details</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Details != null)
                     {
-                        @foreach (var detail in Details.Values)
+                @foreach (var detail in Details.Values)
                         {
-                            <tr>
-                                <td>@detail.Item1</td>
-                                <td>@detail.Item2</td>
-                            </tr>
+                <tr>
+                    <td>@detail.Item1</td>
+                    <td>@detail.Item2</td>
+                </tr>
                         }
                     }
-                </tbody>
-            </table>
+            </tbody>
+        </table>
 
-            <button type="button" class="btn btn-primary" @onclick="() => Confirmation()">Close</button>
-        </div>
-
-
+        <button type="button" class="btn btn-primary" @onclick="() => ClosePopup()">Close</button>
     </div>
+</div>
 }
 
 <table class="table">
@@ -61,7 +76,7 @@
             <tr>
                 <td>@logMessage.Id</td>
                 <td>@logMessage.Source</td>
-                <td>@logMessage.TimeStamp.ToLongTimeString()</td>
+                <td>@logMessage.TimeStamp.ToString("g")</td>
                 <td>@logMessage.LogLevel</td>
                 <td>@logMessage.Message</td>
                 <td><button class="btn btn-primary" @onclick="@(()=>HandleRowClick(logMessage.Id))">Details</button></td>
@@ -71,7 +86,8 @@
 </table>
 
 @code {
-    protected LogDetails LogDetailsComponent;
+
+    private LogViewer.Models.LogSearchModel SearchModel = new Models.LogSearchModel() { BeginTime = DateTime.Now, EndTime = DateTime.Now };
 
     private EnderPi.Framework.DataAccess.LogDataAccess logDataAccess = new EnderPi.Framework.DataAccess.LogDataAccess("Server=localhost;Integrated Security = SSPI; Database=PangolinDev;Trusted_Connection=True;");
 
@@ -100,13 +116,17 @@
         currentCount++;
         Details = logDataAccess.GetLogDetails(logId);
         Show = true;
-        //show that pop-up with the key-value pairs.
-
     }
 
-    public void Confirmation()
+    public void ClosePopup()
     {
         Show = false;
+    }
+
+    public void SearchLogs()
+    {
+        //TODO validation
+        logMessages = logDataAccess.SearchLogMessages(SearchModel.Source, SearchModel.BeginTime, SearchModel.EndTime);
     }
 
 }
