@@ -1,6 +1,6 @@
 ﻿using EnderPi.Framework.Interfaces;
 using System;
-
+using System.Threading.Tasks;
 
 namespace EnderPi.Framework.Logging
 {
@@ -87,6 +87,23 @@ namespace EnderPi.Framework.Logging
         /// <exception cref="">None</exception>
         public void Log(string message, LoggingLevel level, LogDetails details)
         {
+            Task.Run(() => LogPrivate(message, level, details));
+        }
+
+
+        public void Log(string message, LoggingLevel level)
+        {
+            Log(message, level, null);
+        }
+
+        /// <summary>
+        /// Delegate purely for running logging asynchronously.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="level"></param>
+        /// <param name="details"></param>
+        private void LogPrivate(string message, LoggingLevel level, LogDetails details)
+        {
             if (!string.IsNullOrWhiteSpace(message) && level != LoggingLevel.None)
             {
                 try
@@ -101,13 +118,6 @@ namespace EnderPi.Framework.Logging
                 { }
             }
         }
-
-
-        public void Log(string message, LoggingLevel level)
-        {
-            Log(message, level, null);
-        }
-
 
     }
 }

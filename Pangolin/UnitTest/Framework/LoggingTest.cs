@@ -4,12 +4,12 @@ using EnderPi.Framework.Logging;
 using EnderPi.Framework.DataAccess;
 using System.Data.SqlClient;
 using System.Data;
+using System.Threading;
 
 namespace UnitTest.Framework
 {
     public class LoggingTest
     {
-        //"Server=(localdb)\\mssqllocaldb;Database=aspnet-LogViewer-E2A8655F-A68B-4562-AE75-7EE36E643F03;Trusted_Connection=True;MultipleActiveResultSets=true"
         private string _connectionString = "Server=localhost;Integrated Security = SSPI; Database=PangolinDev;Trusted_Connection=True;";
 
         [SetUp]
@@ -27,6 +27,7 @@ namespace UnitTest.Framework
             Logger logger = new Logger(logDataAccess, logSource, LoggingLevel.Debug | LoggingLevel.Error);
             string testData = Guid.NewGuid().ToString();
             logger.Log(testData, logLevel);
+            Thread.Sleep(1000);             //Logging is async, so this fails without a sleep.
             var exists = FindLogMessage(_connectionString, logSource, testData, logLevel);
             Assert.IsTrue(exists == Result);            
         }
@@ -58,6 +59,7 @@ namespace UnitTest.Framework
             details.AddDetail("User", "Tim the Enchanter");
             details.AddDetail("Customer ID", "123456");
             logger.Log(testData, LoggingLevel.Debug, details);
+            Thread.Sleep(1000);         //Logging is async, so this fails without a sleep.
             var exists = FindLogMessage(_connectionString, logSource, testData, LoggingLevel.Debug);
             Assert.IsTrue(exists);
         }
