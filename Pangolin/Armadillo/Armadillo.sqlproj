@@ -71,6 +71,18 @@
     <Build Include="Logging\LogDetails.sql" />
     <Build Include="Logging\GetLogDetails.sql" />
     <Build Include="Logging\SearchLogs.sql" />
+    <Build Include="Configuration\GlobalSettings.sql" />
+    <Build Include="Configuration\ApplicationSettings.sql" />
+    <Build Include="Configuration\CreateGlobalSetting.sql" />
+    <Build Include="Configuration\UpdateGlobalSetting.sql" />
+    <Build Include="Configuration\GetGlobalSetting.sql" />
+    <Build Include="Configuration\DeleteGlobalSetting.sql" />
+    <Build Include="Configuration\CreateApplicationSetting.sql" />
+    <Build Include="Configuration\UpdateApplicationSettingValue.sql" />
+    <Build Include="Configuration\GetApplicationSettingsByApplication.sql" />
+    <Build Include="Configuration\GetApplicationSettings.sql" />
+    <Build Include="Configuration\DeleteApplicationSetting.sql" />
+    <Build Include="Configuration\GetGlobalSettings.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

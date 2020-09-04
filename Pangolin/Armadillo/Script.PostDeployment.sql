@@ -19,3 +19,11 @@ BEGIN
         VALUES (@VersionGuid, 'Junk Logging Data', CURRENT_TIMESTAMP)
 END
 
+SET @VersionGuid = 'CFACE5B8-7B52-485B-BEC9-E5B714736EC2'
+IF NOT EXISTS (SELECT 1 FROM [Configuration].[DatabaseScriptHistory] WHERE [Id] = @VersionGuid)
+BEGIN
+    INSERT INTO [Configuration].[ApplicationSettings] ([Application], [Name], [Value]) VALUES ('MessageQueue','MaximumQueueCount','128')
+    INSERT INTO [Configuration].[DatabaseScriptHistory] ([Id], [Description], [TimeStamp])
+        VALUES (@VersionGuid, 'Default Message Queue Configuration', CURRENT_TIMESTAMP)
+END
+
