@@ -1,0 +1,112 @@
+﻿@page "/globalsettings"
+@attribute [Authorize]
+
+@using EnderPi.Framework.DataAccess;
+@using Microsoft.Extensions.Configuration
+@using EnderPi.Framework.Pocos;
+@inject IConfiguration Configuration
+@inject EnderPi.Framework.Logging.Logger logger 
+@inject ConfigurationDataAccess dataAccess
+
+<h3>Global Settings</h3>
+
+<EditForm Model="SettingModel">
+    <table>
+        <tr>
+            <td>Setting Name:</td>
+            <td><InputText @bind-Value="SettingModel.Name" /></td>
+        </tr>
+
+        <tr>
+            <td>Setting Value:</td>
+            <td><InputText @bind-Value="SettingModel.Value" /></td>
+        </tr>        
+    </table>
+</EditForm>
+<p>
+    <button type="button" class="btn btn-primary" @onclick="AddSetting">Add New Setting</button>
+</p>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Setting Name</th>
+            <th>Setting Value</th>
+            <th>Delete Setting</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @for (int i=0; i < _globalSettings.Length; i++)
+        {
+            var setting = _globalSettings[i];
+            int j = i;
+        <tr>
+            <td>@setting.SettingName</td>
+            <td><input @bind-value="@setting.SettingValue" @onblur="@(()=>UpdateSettingValue(setting.SettingName, setting.SettingValue))"/></td>
+            <td><button class="btn btn-primary" @onclick="@(()=>DeleteSetting(setting.SettingName))">Delete</button></td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private GlobalSetting[] _globalSettings;
+
+    private LogViewer.Models.GlobalSettingModel SettingModel = new Models.GlobalSettingModel();
+
+    protected override Task OnInitializedAsync()
+    {
+        RefreshUI();
+        return base.OnInitializedAsync();
+    }
+
+    private void RefreshUI()
+    {
+        _globalSettings = dataAccess.GetGlobalSettings();
+        SettingModel.Name = "";
+        SettingModel.Value = "";
+    }
+
+    public void AddSetting()
+    {
+        try
+        {
+            dataAccess.CreateGlobalSetting(SettingModel.Name, SettingModel.Value);
+            RefreshUI();
+        }
+        catch (Exception ex)
+        {
+            logger.Log(ex.ToString(), EnderPi.Framework.Logging.LoggingLevel.Error);
+        }
+    }
+
+    public void DeleteSetting(string settingName)
+    {
+        try
+        {
+            dataAccess.DeleteGlobalSetting(settingName);
+            RefreshUI();
+        }
+        catch (Exception ex)
+        {
+            logger.Log(ex.ToString(), EnderPi.Framework.Logging.LoggingLevel.Error);
+        }
+    }
+
+    public void UpdateSettingValue(string settingName, string settingValue)
+    {
+        try
+        {
+            dataAccess.UpdateGlobalSetting(settingName, settingValue);
+            RefreshUI();
+        }
+        catch (Exception ex)
+        {
+            logger.Log(ex.ToString(), EnderPi.Framework.Logging.LoggingLevel.Error);
+        }
+    }
+
+
+}

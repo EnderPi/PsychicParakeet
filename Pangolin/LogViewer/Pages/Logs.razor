@@ -1,5 +1,6 @@
 ﻿@page "/logs"
 @attribute [Authorize]
+@inject EnderPi.Framework.DataAccess.LogDataAccess logDataAccess
 
 <h3>Logs</h3>
 
@@ -88,8 +89,6 @@
 @code {
 
     private LogViewer.Models.LogSearchModel SearchModel = new Models.LogSearchModel() { BeginTime = DateTime.Now, EndTime = DateTime.Now };
-
-    private EnderPi.Framework.DataAccess.LogDataAccess logDataAccess = new EnderPi.Framework.DataAccess.LogDataAccess("Server=localhost;Integrated Security = SSPI; Database=PangolinDev;Trusted_Connection=True;");
 
     private int currentCount = 0;
 

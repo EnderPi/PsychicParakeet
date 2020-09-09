@@ -9,9 +9,6 @@ namespace UnitTest.Framework
 {
     public class LoggingTest
     {
-        //"Server=(localdb)\\mssqllocaldb;Database=aspnet-LogViewer-E2A8655F-A68B-4562-AE75-7EE36E643F03;Trusted_Connection=True;MultipleActiveResultSets=true"
-        private string _connectionString = "Server=localhost;Integrated Security = SSPI; Database=PangolinDev;Trusted_Connection=True;";
-
         [SetUp]
         public void Setup()
         {
@@ -22,12 +19,12 @@ namespace UnitTest.Framework
         [TestCase("Cow", LoggingLevel.Information, false)]
         public void TestLogger(string source, LoggingLevel logLevel, bool Result)
         {
-            LogDataAccess logDataAccess = new LogDataAccess(_connectionString);
+            LogDataAccess logDataAccess = new LogDataAccess(Globals.ConnectionString);
             string logSource = "Cow";
             Logger logger = new Logger(logDataAccess, logSource, LoggingLevel.Debug | LoggingLevel.Error);
             string testData = Guid.NewGuid().ToString();
             logger.Log(testData, logLevel);
-            var exists = FindLogMessage(_connectionString, logSource, testData, logLevel);
+            var exists = FindLogMessage(Globals.ConnectionString, logSource, testData, logLevel);
             Assert.IsTrue(exists == Result);            
         }
 
@@ -49,7 +46,7 @@ namespace UnitTest.Framework
         [Test]
         public void TestLoggerWithDetails()
         {
-            LogDataAccess logDataAccess = new LogDataAccess(_connectionString);
+            LogDataAccess logDataAccess = new LogDataAccess(Globals.ConnectionString);
             string logSource = "Cow";
             Logger logger = new Logger(logDataAccess, logSource, LoggingLevel.Debug | LoggingLevel.Error);
             string testData = Guid.NewGuid().ToString();
@@ -58,7 +55,7 @@ namespace UnitTest.Framework
             details.AddDetail("User", "Tim the Enchanter");
             details.AddDetail("Customer ID", "123456");
             logger.Log(testData, LoggingLevel.Debug, details);
-            var exists = FindLogMessage(_connectionString, logSource, testData, LoggingLevel.Debug);
+            var exists = FindLogMessage(Globals.ConnectionString, logSource, testData, LoggingLevel.Debug);
             Assert.IsTrue(exists);
         }
 

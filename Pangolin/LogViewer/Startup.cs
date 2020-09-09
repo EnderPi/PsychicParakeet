@@ -15,6 +15,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using LogViewer.Areas.Identity;
 using LogViewer.Data;
+using EnderPi.Framework.Logging;
+using EnderPi.Framework.DataAccess;
 
 namespace LogViewer
 {
@@ -31,15 +33,18 @@ namespace LogViewer
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            string connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(connectionString));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
             services.AddSingleton<WeatherForecastService>();
+            services.AddSingleton(new LogDataAccess(connectionString));
+            services.AddSingleton(new Logger(new LogDataAccess(connectionString), Configuration["ApplicationName"], LoggingLevel.Error | LoggingLevel.Warning));
+            services.AddSingleton(new ConfigurationDataAccess(connectionString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
