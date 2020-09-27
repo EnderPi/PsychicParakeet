@@ -17,6 +17,7 @@ using LogViewer.Areas.Identity;
 using LogViewer.Data;
 using EnderPi.Framework.Logging;
 using EnderPi.Framework.DataAccess;
+using EnderPi.Framework.Messaging;
 
 namespace LogViewer
 {
@@ -42,6 +43,11 @@ namespace LogViewer
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
             services.AddSingleton<WeatherForecastService>();
+            //todo UGH.  SO how do i get application configuration settings for the event manager before I have an event manager?  The event manager is needed to 
+            //build a configuration data access guy so that it can invalidate events, but that's only needed on an update.
+            //so I think I need property injection so that it can be built without one and have it populated later, else I have a circular dependency issue
+            //That creates a tightish coupling.....something to think about.
+            //var eventManager = new EventManager(connectionString, )
             services.AddSingleton(new LogDataAccess(connectionString));
             services.AddSingleton(new Logger(new LogDataAccess(connectionString), Configuration["ApplicationName"], LoggingLevel.Error | LoggingLevel.Warning));
             services.AddSingleton(new ConfigurationDataAccess(connectionString));

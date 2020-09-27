@@ -58,6 +58,7 @@
     <Folder Include="Properties" />
     <Folder Include="Logging" />
     <Folder Include="Configuration" />
+    <Folder Include="MessageQueue" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Logging\Log.sql" />
@@ -83,6 +84,10 @@
     <Build Include="Configuration\GetApplicationSettings.sql" />
     <Build Include="Configuration\DeleteApplicationSetting.sql" />
     <Build Include="Configuration\GetGlobalSettings.sql" />
+    <Build Include="MessageQueue\Subscriptions.sql" />
+    <Build Include="MessageQueue\GetAllSubscriptions.sql" />
+    <Build Include="MessageQueue\CreateSubscription.sql" />
+    <Build Include="MessageQueue\DeleteSubscription.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

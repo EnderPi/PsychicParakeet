@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EnderPi.Framework.Caching
 {
@@ -12,10 +10,10 @@ namespace EnderPi.Framework.Caching
         /// <summary>
         /// returns the object from the cache, or populates the cache with the delegate.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="key"></param>
-        /// <param name="populate"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">The type of the object being retrieved.</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="populate">The delegate to populate the cache if needed.</param>
+        /// <returns>The object from the cache, or the delegate if the key isn't in the cache.</returns>
         T Fetch<T>(string key, Func<T> populate);
     }
 }
