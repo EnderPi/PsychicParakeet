@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.SqlClient;
-using EnderPi.Framework.Caching;
 using System.Text.RegularExpressions;
 
 namespace EnderPi.Framework.Messaging
@@ -15,7 +14,6 @@ namespace EnderPi.Framework.Messaging
         private string _queueName;
         private string _databaseConnection;
         private const string _createTableStatement = @"IF (SELECT OBJECT_ID('MessageQueue.{0}')) IS NULL BEGIN CREATE TABLE MessageQueue.{0} (Id BIGINT IDENTITY(1,1), Priority int, DateCreated DateTime , MessageBody VARCHAR(MAX)) CREATE CLUSTERED INDEX [MessageIndex] ON MessageQueue.{0} ([Priority] DESC, [ID] DESC) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) END";
-        private const string _tableExistsStatement = @"SELECT OBJECT_ID('MessageQueue.{0}')";
         private const string _insertMessageStatement = @"INSERT INTO [MessageQueue].{0} ([Priority],[DateCreated],[MessageBody]) VALUES (@Priority,@DateCreated,@MessageBody)";
         private const string _readMessageStatement = @"WITH T AS (SELECT TOP 1 [Id],[Priority],[DateCreated],[MessageBody] FROM MessageQueue.{0} ORDER BY PRIORITY DESC, ID DESC) DELETE FROM T OUTPUT DELETED.ID, DELETED.Priority, DELETED.DateCreated, DELETED.MessageBody";        
         private const string _peekMessageStatement = "SELECT TOP 1 [Id],[Priority],[DateCreated],[MessageBody] FROM MessageQueue.{0} ORDER BY PRIORITY DESC, ID DESC";
@@ -28,7 +26,7 @@ namespace EnderPi.Framework.Messaging
         /// Constructs the object, builds the underlying table if it doesn't exist.
         /// </summary>
         /// <param name="Name">The name of the queue</param>
-        public MessageQueue(string databaseConnection, string queueName, ICache cache)
+        public MessageQueue(string databaseConnection, string queueName)
         {
             if (!IsQueueNameValid(queueName))
             {
@@ -36,11 +34,7 @@ namespace EnderPi.Framework.Messaging
             }
             _databaseConnection = databaseConnection;
             _queueName = queueName;
-            //TODO I don't know that this even needs to cache.  Users shouldn't be creating message queues frequently.  They will likely pass one around as a dependency.
-            if (!TableExists(cache))
-            {
-                CreateTable();
-            }
+            CreateTable();            
         }
 
         private bool IsQueueNameValid(string queueName)
@@ -49,7 +43,7 @@ namespace EnderPi.Framework.Messaging
         }
 
         /// <summary>
-        /// Creates the table.
+        /// Creates the table.  Safe to call if table already exists.
         /// </summary>
         private void CreateTable()
         {
@@ -62,26 +56,7 @@ namespace EnderPi.Framework.Messaging
                 }
             }
         }
-
-        private bool TableExists(ICache cache)
-        {
-            Func<bool> populateCache = () => { return TableExistsInDatabase(); };
-            return cache.Fetch("TableExists_"+_queueName, populateCache);            
-        }
-
-        private bool TableExistsInDatabase()
-        {
-            using (SqlConnection connection = new SqlConnection(_databaseConnection))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand(string.Format(_tableExistsStatement, _queueName), connection))
-                {
-                    object id = command.ExecuteScalar();
-                    return id != DBNull.Value;
-                }
-            }
-        }
-
+                        
         public void SendMessage(Message message)
         {
             using (SqlConnection connection = new SqlConnection(_databaseConnection))
