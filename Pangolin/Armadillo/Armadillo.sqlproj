@@ -59,6 +59,8 @@
     <Folder Include="Logging" />
     <Folder Include="Configuration" />
     <Folder Include="MessageQueue" />
+    <Folder Include="Simulations" />
+    <Folder Include="GeneticRng" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Logging\Log.sql" />
@@ -88,6 +90,31 @@
     <Build Include="MessageQueue\GetAllSubscriptions.sql" />
     <Build Include="MessageQueue\CreateSubscription.sql" />
     <Build Include="MessageQueue\DeleteSubscription.sql" />
+    <Build Include="Simulations\Simulation.sql" />
+    <Build Include="Simulations\BirthdayEmpirical.sql" />
+    <Build Include="Simulations\BirthdayEmpiricalDetail.sql" />
+    <Build Include="Simulations\CreateSimulation.sql" />
+    <Build Include="Simulations\SimulationIds.sql" />
+    <Build Include="Simulations\GetNextReadyTaskNotInFlight.sql" />
+    <Build Include="Simulations\GetSimulationById.sql" />
+    <Build Include="Simulations\MarkSimulationComplete.sql" />
+    <Build Include="Simulations\MarkSimulationCanceled.sql" />
+    <Build Include="Simulations\UpdateSimulationFileName.sql" />
+    <Build Include="Simulations\UpdateSimulationProgress.sql" />
+    <Build Include="Simulations\CreateBirthdayEmpirical.sql" />
+    <Build Include="Simulations\CreateBirthdayEmpiricalDetail.sql" />
+    <Build Include="Simulations\GcdTest.sql" />
+    <Build Include="Simulations\CreateGcdTest.sql" />
+    <Build Include="Simulations\BirthdayTest.sql" />
+    <Build Include="Simulations\BirthdayTestDetail.sql" />
+    <Build Include="Simulations\GorillaTest.sql" />
+    <Build Include="Simulations\GcdTestChiSquared.sql" />
+    <Build Include="Simulations\CreateGcdTestChiSquared.sql" />
+    <Build Include="Simulations\RandomnessSimulation.sql" />
+    <Build Include="Simulations\CreateRandomnessSimulation.sql" />
+    <Build Include="GeneticRng\RngSpecimens.sql" />
+    <Build Include="Simulations\CreateBirthdayTest.sql" />
+    <Build Include="Simulations\CreateBirthdayTestDetail.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

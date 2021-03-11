@@ -95,6 +95,11 @@ namespace EnderPi.Framework.Threading
         /// </summary>
         private int _secondsBetweenHousekeeping;
 
+        /// <summary>
+        /// Whether or not tasks should be cancelled.
+        /// </summary>
+        private bool _cancelTasks;
+
         #endregion
 
         /// <summary>
@@ -114,9 +119,9 @@ namespace EnderPi.Framework.Threading
                 }
                 _maximumConcurrency = value;
             }
-            get 
+            get
             {
-                return _maximumConcurrency; 
+                return _maximumConcurrency;
             }
         }
 
@@ -184,7 +189,7 @@ namespace EnderPi.Framework.Threading
         public event ThrottledEventHandler MessageProcessing;
 
         /// <summary>
-        /// Fires after a task is processed by the processing delegate.
+        /// Fires after a task is processed by the processing delegate.  Does not occur if an exception was thrown by the processor.
         /// </summary>
         public event ThrottledEventHandler MessageProcessed;
 
@@ -202,11 +207,16 @@ namespace EnderPi.Framework.Threading
         /// Occurs after periodic housekeeping has been performed (terminating hung tasks.)
         /// </summary>
         public event ThrottledEventHandler CleanupTaskFired;
-        
+
         /// <summary>
         /// Occurs after all tasks have stopped and all cleanup has occurred.
         /// </summary>
         public event ThrottledEventHandler StoppedListening;
+
+        /// <summary>
+        /// Occurs when a task has finished, whether or not an exception was thrown.
+        /// </summary>
+        public event ThrottledEventHandler TaskFinished;
 
         private void OnExceptionOccurredInWorkerThread(ThrottledEventArgs<T> e)
         {
@@ -238,6 +248,11 @@ namespace EnderPi.Framework.Threading
             Threading.ExecuteWithoutThrowing(() => StoppedListening?.Invoke(this, e));
         }
 
+        private void OnTaskFinished(ThrottledEventArgs<T> e)
+        {
+            Threading.ExecuteWithoutThrowing(() => TaskFinished?.Invoke(this, e));
+        }
+
         #endregion
 
         /// <summary>
@@ -245,19 +260,21 @@ namespace EnderPi.Framework.Threading
         /// </summary>
         /// <param name="GetTask">The function to get a task.  Should return null if no task exists.</param>
         /// <param name="processor">The processor to call with a task.</param>
-        public ThrottledTaskProcessor(Func<T> GetTask, Action<T> processor) : this(GetTask, processor, 4, 120, 4000, 30)    
+        public ThrottledTaskProcessor(Func<T> GetTask, Action<T> processor) :
+            this(GetTask, processor, new ThrottledTaskProcessorParameters(4, 120, 4000, 30, false))    
         {   
         }
 
-        public ThrottledTaskProcessor(Func<T> GetTask, Action<T> processor, int concurrency, int maxtaskLifetimeInSeconds, int millisecondsToSleep, int secondsBetweenHousekeeping) 
+        public ThrottledTaskProcessor(Func<T> GetTask, Action<T> processor, ThrottledTaskProcessorParameters parameters) 
         {
             _processor = processor;
             _getTask = GetTask;
             _currentTasks = new List<CancellableTask>();
-            _maximumConcurrency = concurrency;
-            _maxTaskLifetimeinSeconds = maxtaskLifetimeInSeconds;
-            _millisecondsToSleep = millisecondsToSleep;
-            _secondsBetweenHousekeeping = secondsBetweenHousekeeping;
+            _maximumConcurrency = parameters.Concurrency;
+            _maxTaskLifetimeinSeconds = parameters.MaxtaskLifetimeInSeconds;
+            _millisecondsToSleep = parameters.MillisecondsToSleep;
+            _secondsBetweenHousekeeping = parameters.SecondsBetweenHousekeeping;
+            _cancelTasks = parameters.CancelTasks;
         }
         
         /// <summary>
@@ -292,14 +309,17 @@ namespace EnderPi.Framework.Threading
         /// <param name="e"></param>
         private void CleanupHungTasks(object source, ElapsedEventArgs e)
         {
-            lock (_lockObject)
+            if (_cancelTasks)
             {
-                DateTime now = DateTime.Now;
-                foreach (var task in _currentTasks)
+                lock (_lockObject)
                 {
-                    if ((now - task.TimeStarted).Seconds > _maxTaskLifetimeinSeconds)
+                    DateTime now = DateTime.Now;
+                    foreach (var task in _currentTasks)
                     {
-                        task.Cancel();
+                        if ((now - task.TimeStarted).Seconds > _maxTaskLifetimeinSeconds)
+                        {
+                            task.Cancel();
+                        }
                     }
                 }
             }
@@ -374,6 +394,7 @@ namespace EnderPi.Framework.Threading
                 {
                     _currentTasks.RemoveAll(x => x == task);
                 }
+                OnTaskFinished(new ThrottledEventArgs<T>(message));
             }
         }
 

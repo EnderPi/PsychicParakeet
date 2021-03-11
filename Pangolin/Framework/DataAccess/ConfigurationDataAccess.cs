@@ -365,5 +365,16 @@ namespace EnderPi.Framework.DataAccess
             }
             return result;
         }
+
+        public double GetGlobalSettingDouble(string name, double defaultValue)
+        {
+            double result = defaultValue;
+            var setting = GetGlobalSetting(name);
+            if (setting != null)
+            {
+                result = Convert.ToDouble(setting.SettingValue);
+            }
+            return result;
+        }
     }
 }

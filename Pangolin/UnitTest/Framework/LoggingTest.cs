@@ -4,6 +4,7 @@ using EnderPi.Framework.Logging;
 using EnderPi.Framework.DataAccess;
 using System.Data.SqlClient;
 using System.Data;
+using System.Diagnostics;
 
 namespace UnitTest.Framework
 {
@@ -20,11 +21,10 @@ namespace UnitTest.Framework
         public void TestLogger(string source, LoggingLevel logLevel, bool Result)
         {
             LogDataAccess logDataAccess = new LogDataAccess(Globals.ConnectionString);
-            string logSource = "Cow";
-            Logger logger = new Logger(logDataAccess, logSource, LoggingLevel.Debug | LoggingLevel.Error);
+            Logger logger = new Logger(logDataAccess, source, LoggingLevel.Debug | LoggingLevel.Error);
             string testData = Guid.NewGuid().ToString();
             logger.Log(testData, logLevel);
-            var exists = FindLogMessage(Globals.ConnectionString, logSource, testData, logLevel);
+            var exists = FindLogMessage(Globals.ConnectionString, source, testData, logLevel);
             Assert.IsTrue(exists == Result);            
         }
 
@@ -59,6 +59,31 @@ namespace UnitTest.Framework
             Assert.IsTrue(exists);
         }
 
+        /// <summary>
+        /// Simple speed test.  Looks like 1.5 milliseconds to log a message with details.
+        /// </summary>
+        [Test]
+        public void TestLoggerSpeedWithDetails()
+        {
+            LogDataAccess logDataAccess = new LogDataAccess(Globals.ConnectionString);
+            string logSource = "Cow";
+            Logger logger = new Logger(logDataAccess, logSource, LoggingLevel.Debug | LoggingLevel.Error);
+
+            Stopwatch watch = Stopwatch.StartNew();
+            for (int i = 0; i < 1000; i++)
+            {
+                string testData = Guid.NewGuid().ToString();
+                LogDetails details = new LogDetails();
+                details.AddDetail("order ID", "123456");
+                details.AddDetail("User", "Tim the Enchanter");
+                details.AddDetail("Customer ID", "123456");
+                logger.Log(testData, LoggingLevel.Debug, details);
+            }
+            watch.Stop();
+
+            logger.Log($"Logged 1000 messages with details in {watch.ElapsedMilliseconds} milliseconds.", LoggingLevel.Debug);
+
+        }
 
 
 

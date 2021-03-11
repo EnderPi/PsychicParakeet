@@ -113,7 +113,8 @@ namespace NotificationPublisher
             _receivingQueue = new MessageQueue(_options.ConnectionString, publishingEventQueue);
 
             var applicationEventQueue = new MessageQueue(_options.ConnectionString, _settings.EventQueueName);
-            _eventManager = new EventManager(_options.ConnectionString, _receivingQueue, applicationEventQueue, 1, 4000, _myLogger);
+            var taskParameters = new ThrottledTaskProcessorParameters(1, 30, 4000, 120, false);
+            _eventManager = new EventManager(_options.ConnectionString, _receivingQueue, applicationEventQueue, taskParameters, _myLogger);
 
 
             _notificationPublisher = new NotificationPublisherRuntime(_options.ConnectionString, _receivingQueue, _eventManager, _myLogger, _settings.MaxConcurrency, _settings.MaxTaskLifeTimeInSeconds, _settings.MillisecondsToSleep);

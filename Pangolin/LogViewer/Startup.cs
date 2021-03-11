@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +11,11 @@ using LogViewer.Data;
 using EnderPi.Framework.Logging;
 using EnderPi.Framework.DataAccess;
 using EnderPi.Framework.Messaging;
+using EnderPi.Framework.Interfaces;
+using EnderPi.Framework.Pocos;
+using EnderPi.Framework.Threading;
+using EnderPi.Framework.Caching;
+using EnderPi.Framework.BackgroundWorker;
 
 namespace LogViewer
 {
@@ -35,6 +33,7 @@ namespace LogViewer
         public void ConfigureServices(IServiceCollection services)
         {
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
+            var applicationName = Configuration["ApplicationName"];
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -42,15 +41,31 @@ namespace LogViewer
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
-            services.AddSingleton<WeatherForecastService>();
-            //todo UGH.  SO how do i get application configuration settings for the event manager before I have an event manager?  The event manager is needed to 
-            //build a configuration data access guy so that it can invalidate events, but that's only needed on an update.
-            //so I think I need property injection so that it can be built without one and have it populated later, else I have a circular dependency issue
-            //That creates a tightish coupling.....something to think about.
-            //var eventManager = new EventManager(connectionString, )
-            services.AddSingleton(new LogDataAccess(connectionString));
-            services.AddSingleton(new Logger(new LogDataAccess(connectionString), Configuration["ApplicationName"], LoggingLevel.Error | LoggingLevel.Warning));
-            services.AddSingleton(new ConfigurationDataAccess(connectionString));
+
+            var configurationDataAccess = new ConfigurationDataAccess(connectionString);
+            WebAppConfigurations configs = configurationDataAccess.GetApplicationConfigurationValues<WebAppConfigurations>(applicationName);
+
+            var logDataAccess = new LogDataAccess(connectionString);
+            var myLogger = new Logger(logDataAccess, applicationName, configs.LogLevel);
+
+            var publishingQueueName = configurationDataAccess.GetGlobalSettingString(GlobalSettings.EventPublishingQueue);
+            var publishingMessageQueue = new MessageQueue(connectionString, publishingQueueName);
+            var receivingMessageQueue = new MessageQueue(connectionString, configs.EventQueueName);
+            var taskParameters = new ThrottledTaskProcessorParameters(1, 30, 4000, 120, false);
+            var eventManager = new EventManager(connectionString, publishingMessageQueue, receivingMessageQueue, taskParameters, myLogger);
+            
+            eventManager.StartListening();
+            configurationDataAccess.EventManager = eventManager;
+            CachedConfigurationProvider cachedConfigurationProvider = new CachedConfigurationProvider(configurationDataAccess, new TimedCache());
+
+            var simDataAccess = new SimulationDataAccess(connectionString);
+
+            services.AddSingleton(logDataAccess);
+            services.AddSingleton(myLogger);
+            services.AddSingleton<IConfigurationDataAccess>(cachedConfigurationProvider);
+            services.AddSingleton<IEventManager>(eventManager);
+            services.AddSingleton<IBackgroundTaskManager>(new BackgroundTaskManager(simDataAccess, myLogger, cachedConfigurationProvider));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -94,6 +94,7 @@ namespace EnderPi.Framework.DataAccess
         /// <param name="key">The key of the setting to update.</param>
         /// <param name="newValue">The new value for the setting.</param>
         void UpdateApplicationSettingValue(string applicationName, string key, string value);
+        double GetGlobalSettingDouble(string geneticTournamentProbability, double v);
 
         /// <summary>
         /// Updates the global setting of the given key with the given value.
