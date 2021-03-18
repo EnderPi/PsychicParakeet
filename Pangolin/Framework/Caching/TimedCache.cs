@@ -51,5 +51,15 @@ namespace EnderPi.Framework.Caching
                 return (T)_cache.GetOrAdd(key, (string s) => populate());
             }
         }
+
+        /// <summary>
+        /// For dropping a specific cache key.  Limited Utility.
+        /// </summary>
+        /// <param name="key"></param>
+        public void DropCacheItem(string key)
+        {
+            _cache.TryRemove(key, out var o);
+        }
+
     }
 }

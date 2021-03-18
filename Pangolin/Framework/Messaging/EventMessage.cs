@@ -11,6 +11,9 @@ namespace EnderPi.Framework.Messaging
     [DataContract(Name = "EventMessage", Namespace = "EnderPi")]
     [KnownType(typeof(Events.CacheInvalidationEvent))]
     [KnownType(typeof(Events.GlobalConfigurationsUpdated))]
+    [KnownType(typeof(Events.SimulationCancelledEvent))]
+    [KnownType(typeof(Events.SimulationFinishedEvent))]
+    [KnownType(typeof(Events.StopBackgroundTasksEvent))]
     public abstract class EventMessage
     {
 

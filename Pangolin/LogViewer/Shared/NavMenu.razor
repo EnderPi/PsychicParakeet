@@ -1,4 +1,9 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@using EnderPi.Framework.Messaging.Events;
+@inject EnderPi.Framework.Interfaces.IEventManager eventManager
+@inject AuthenticationStateProvider authStateProvider
+@implements IDisposable
+
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">LogViewer</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -37,11 +42,26 @@
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Application Settings
             </NavLink>
         </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="genetics">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Genetics
+            </NavLink>
+        </li>
+        @if (newSimulationFinished)
+        {
+            <li class="nav-item px-3">
+                <button @onclick="DismissNotification">New Result!</button>
+            </li>
+        }
     </ul>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+
+    private bool newSimulationFinished = false;
+
+    private string userName = null;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -49,4 +69,37 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
+    protected override Task OnInitializedAsync()
+    {
+        var authStateTask = authStateProvider.GetAuthenticationStateAsync();
+        authStateTask.Wait();
+        if (authStateTask.Result.User.Identity != null)
+        {
+            userName = authStateTask.Result.User.Identity.Name;
+            eventManager.Subscribe<SimulationFinishedEvent>(ProcessSimulationFinishedEvent);
+        }
+        return base.OnInitializedAsync();
+    }
+
+    private void ProcessSimulationFinishedEvent(SimulationFinishedEvent e)
+    {
+        if (e.UserName == userName)
+        {
+            newSimulationFinished = true;
+            StateHasChanged();
+        }
+    }        
+
+    private void DismissNotification()
+    {
+        newSimulationFinished = false;
+    }
+
+    public void Dispose()
+    {
+        //It's safe to unsubscribe even if the subscription never happened.
+        eventManager.Unsubscribe<SimulationFinishedEvent>(ProcessSimulationFinishedEvent);
+    }
+
 }

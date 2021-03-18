@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EnderPi.Framework.Logging;
+using System;
 
 namespace EnderPi.Framework.Threading
 {
@@ -19,5 +20,23 @@ namespace EnderPi.Framework.Threading
             {
             }
         }
+
+        /// <summary>
+        /// Executes the given delegate in a try-catch that suppresses any exception, but logs the exception to the given logger.
+        /// </summary>
+        /// <param name="action"></param>
+        public static void ExecuteWithoutThrowing(Action action, Logger logger)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                logger.Log(ex.ToString(), LoggingLevel.Error);
+            }
+        }
+
+
     }
 }

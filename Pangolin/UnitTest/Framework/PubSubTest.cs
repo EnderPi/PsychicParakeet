@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using EnderPi.Framework.DataAccess;
-using EnderPi.Framework.Interfaces;
 using EnderPi.Framework.Logging;
 using EnderPi.Framework.Messaging;
 using EnderPi.Framework.Messaging.Events;
 using NUnit.Framework;
+using EnderPi.Framework.Threading;
 
 namespace UnitTest.Framework
 {
@@ -40,7 +36,8 @@ namespace UnitTest.Framework
             IMessageQueue eventMessageQueue = new MessageQueue(Globals.ConnectionString, eventQueueName);
             var notificationPublisherApplicationEventQueueName = "NotificationAppEventQueueTest";  //The event queue for the Notification App
             IMessageQueue notificationAppEventQueue = new MessageQueue(Globals.ConnectionString, notificationPublisherApplicationEventQueueName);
-            EventManager notificationAppEventManager = new EventManager(Globals.ConnectionString, eventMessageQueue, notificationAppEventQueue, 1, 100, notificationLogger);
+            var taskParameters = new ThrottledTaskProcessorParameters(1, 30, 100, 120, false);
+            EventManager notificationAppEventManager = new EventManager(Globals.ConnectionString, eventMessageQueue, notificationAppEventQueue, taskParameters, notificationLogger);
             var notificationPublisher = new NotificationPublisherRuntime(Globals.ConnectionString, eventMessageQueue, notificationAppEventManager, notificationLogger, 1, 30, 100);
 
             //create subscribing application eventmanager
@@ -49,7 +46,7 @@ namespace UnitTest.Framework
             IMessageQueue eventMessageQueueSub = new MessageQueue(Globals.ConnectionString, eventQueueNameSub);
             var notificationSubscriberApplicationEventQueueName = "NotificationSubscriberEventQueueTest";  //The event queue for the Subscriber App
             IMessageQueue subAppEventQueue = new MessageQueue(Globals.ConnectionString, notificationSubscriberApplicationEventQueueName);
-            EventManager subAppEventManager = new EventManager(Globals.ConnectionString, eventMessageQueueSub, subAppEventQueue, 1, 100, subLogger);
+            EventManager subAppEventManager = new EventManager(Globals.ConnectionString, eventMessageQueueSub, subAppEventQueue, taskParameters, subLogger);
 
             //start things
             notificationAppEventManager.StartListening();

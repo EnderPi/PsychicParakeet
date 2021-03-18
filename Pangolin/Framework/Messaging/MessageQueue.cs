@@ -13,9 +13,9 @@ namespace EnderPi.Framework.Messaging
 
         private string _queueName;
         private string _databaseConnection;
-        private const string _createTableStatement = @"IF (SELECT OBJECT_ID('MessageQueue.{0}')) IS NULL BEGIN CREATE TABLE MessageQueue.{0} (Id BIGINT IDENTITY(1,1), Priority int, DateCreated DateTime , MessageBody VARCHAR(MAX)) CREATE CLUSTERED INDEX [MessageIndex] ON MessageQueue.{0} ([Priority] DESC, [ID] DESC) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) END";
+        private const string _createTableStatement = @"IF (SELECT OBJECT_ID('MessageQueue.{0}')) IS NULL BEGIN CREATE TABLE MessageQueue.{0} (Id BIGINT IDENTITY(1,1), Priority int, DateCreated DateTime , MessageBody VARCHAR(MAX)) CREATE CLUSTERED INDEX [MessageIndex] ON MessageQueue.{0} ([Priority] DESC, [ID] ASC) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) END";
         private const string _insertMessageStatement = @"INSERT INTO [MessageQueue].{0} ([Priority],[DateCreated],[MessageBody]) VALUES (@Priority,@DateCreated,@MessageBody)";
-        private const string _readMessageStatement = @"WITH T AS (SELECT TOP 1 [Id],[Priority],[DateCreated],[MessageBody] FROM MessageQueue.{0} ORDER BY PRIORITY DESC, ID DESC) DELETE FROM T OUTPUT DELETED.ID, DELETED.Priority, DELETED.DateCreated, DELETED.MessageBody";        
+        private const string _readMessageStatement = @"WITH T AS (SELECT TOP 1 [Id],[Priority],[DateCreated],[MessageBody] FROM MessageQueue.{0} ORDER BY PRIORITY DESC, ID ASC) DELETE FROM T OUTPUT DELETED.ID, DELETED.Priority, DELETED.DateCreated, DELETED.MessageBody";        
         private const string _peekMessageStatement = "SELECT TOP 1 [Id],[Priority],[DateCreated],[MessageBody] FROM MessageQueue.{0} ORDER BY PRIORITY DESC, ID DESC";
         private const string _countMessagesStatement = "SELECT COUNT(*) FROM MessageQueue.{0}";
         private const string _clearMessagesStatement = "DELETE FROM MessageQueue.{0}";

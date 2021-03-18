@@ -71,7 +71,7 @@ namespace EnderPi.Framework.Messaging
         /// <param name="maxConcurrency">Maximum concurrency.</param>
         /// <param name="millisecondsToSleep">How long the manager sleeps after checking the queue and finding no messages.  Recommend 1000</param>
         /// <param name="logger">Logger object, used to log events related to message processing.</param>
-        public EventManager(string connectionString, IMessageQueue publishingQueue, IMessageQueue receivingQueue, int maxConcurrency, int millisecondsToSleep, Logger logger)
+        public EventManager(string connectionString, IMessageQueue publishingQueue, IMessageQueue receivingQueue, ThrottledTaskProcessorParameters parameters, Logger logger)
         {
             _logger = logger;
             _serializer = new DataContractSerializer(typeof(EventMessage), GetKnownTypes());
@@ -79,8 +79,8 @@ namespace EnderPi.Framework.Messaging
             _publishingMessageQueue = publishingQueue;
             _receivingMessageQueue = receivingQueue;
             _subscriptions = new List<EventSubscription>();
-            //TODO the literals below feel like general event application settings.  They need added to the constructor.
-            _throttledMessageListener = new ThrottledTaskProcessor<EventMessage>(GetNextEvent, RouteEventMessageLocally, maxConcurrency, 30, millisecondsToSleep, 30);//
+            //TODO the literals below feel like general event application settings.  They need added to the constructor.            
+            _throttledMessageListener = new ThrottledTaskProcessor<EventMessage>(GetNextEvent, RouteEventMessageLocally, parameters);//
             _throttledMessageListener.ExceptionOccurredInSchedulerThread += LogMessageException;
             _throttledMessageListener.ExceptionOccurredInWorkerThread += LogMessageException;
             _throttledMessageListener.MessageProcessing += LogMessageReceived;
@@ -148,7 +148,9 @@ namespace EnderPi.Framework.Messaging
         /// <returns></returns>
         private Type[] GetKnownTypes()
         {
-            return new Type[] { typeof(CacheInvalidationEvent), typeof(GlobalConfigurationsUpdated) };
+            return new Type[] { typeof(CacheInvalidationEvent), typeof(GlobalConfigurationsUpdated), typeof(SimulationCancelledEvent), typeof(StopBackgroundTasksEvent),
+                typeof(SimulationFinishedEvent)
+            };
         }
 
         /// <summary>

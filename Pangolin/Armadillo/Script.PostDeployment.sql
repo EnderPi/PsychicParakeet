@@ -27,3 +27,20 @@ BEGIN
         VALUES (@VersionGuid, 'Default Message Queue Configuration', CURRENT_TIMESTAMP)
 END
 
+SET @VersionGuid = 'B3476398-E9C5-4DFC-A862-C5D32E716D6B'
+IF NOT EXISTS (SELECT 1 FROM [Configuration].[DatabaseScriptHistory] WHERE [Id] = @VersionGuid)
+BEGIN
+    INSERT INTO [Configuration].[ApplicationSettings] ([Application], [Name], [Value]) VALUES ('LogViewer','EventQueueName','EventsLogViewer')
+    INSERT INTO [Configuration].[ApplicationSettings] ([Application], [Name], [Value]) VALUES ('LogViewer','LogLevel','31')
+    INSERT INTO [Configuration].[DatabaseScriptHistory] ([Id], [Description], [TimeStamp])
+        VALUES (@VersionGuid, 'Default Web Application COnfigurations', CURRENT_TIMESTAMP)
+END
+
+SET @VersionGuid = 'C205C467-073B-4F9D-8C37-DEC700484231'
+IF NOT EXISTS (SELECT 1 FROM [Configuration].[DatabaseScriptHistory] WHERE [Id] = @VersionGuid)
+BEGIN
+    INSERT INTO [Configuration].[GlobalSettings] ([Name], [Value]) VALUES ('EventPublishingQueue','EventPublishingQueue')
+    INSERT INTO [Configuration].[DatabaseScriptHistory] ([Id], [Description], [TimeStamp])
+        VALUES (@VersionGuid, 'Default Pub-Sub Application Configurations', CURRENT_TIMESTAMP)
+END
+
