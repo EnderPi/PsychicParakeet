@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace EnderPi.Framework.Simulation.Genetic
 {
@@ -17,8 +18,7 @@ namespace EnderPi.Framework.Simulation.Genetic
         private TreeNode _seedOneRoot;
         private TreeNode _seedTwoRoot;
         private string _imageString;
-        private string _imageStringSquished;
-        private string _animatedGif;
+        private string _imageStringSquished;        
 
         /// <summary>
         /// How fit this specimen is.  Higher values are better.
@@ -46,6 +46,29 @@ namespace EnderPi.Framework.Simulation.Genetic
 
         public string Name { set; get; }
 
+        /// <summary>
+        /// Values of all constants.
+        /// </summary>
+        private List<Tuple<ulong, string>> _constantValue;
+
+        public List<Tuple<ulong, string>> ConstantNameList { get { return _constantValue; } }
+
+        public string ConstantNames
+        {
+            get
+            {
+                StringBuilder sb = new StringBuilder();
+                if (_constantValue != null)
+                {
+                    foreach(var val in _constantValue)
+                    {
+                        sb.AppendLine($"{val.Item2} = {val.Item1.ToString("N0")}");
+                    }
+                }
+                return sb.ToString();
+            }
+        }
+
         public string ImageString
         {
             get
@@ -69,19 +92,6 @@ namespace EnderPi.Framework.Simulation.Genetic
                 return _imageStringSquished;
             }
         }
-
-        public string AnimatedGifString
-        {
-            get
-            {
-                if (_animatedGif == null)
-                {
-                    RenderAnimatedGif();
-                }
-                return _animatedGif;
-            }
-        }
-
         
 
         public TreeNode GetTreeRoot(int index)
@@ -117,15 +127,15 @@ namespace EnderPi.Framework.Simulation.Genetic
                     _stateOneRoot = new IntronNode(new StateOneNode());
                     _stateTwoRoot = new IntronNode(new StateTwoNode());
                     break;
-                case ConstraintMode.StateIncremental:
+                case ConstraintMode.StateInc:
                     _stateOneRoot = new IntronNode(new AdditionNode(new StateOneNode(), new ConstantNode(1)));
                     _stateTwoRoot = new IntronNode(new AdditionNode(new StateTwoNode(), new ConstantNode(1)));
                     break;
-                case ConstraintMode.StateLinearCongruential:
+                case ConstraintMode.StateLcg:
                     _stateOneRoot = new IntronNode(new AdditionNode(new MultiplicationNode(new StateOneNode(), new ConstantNode(3935559000370003845)), new ConstantNode(2691343689449507681)));
                     _stateTwoRoot = new IntronNode(new AdditionNode(new MultiplicationNode(new StateTwoNode(), new ConstantNode(3935559000370003845)), new ConstantNode(2691343689449507681))); new IntronNode(new AdditionNode(new ConstantNode(1), new StateTwoNode()));
                     break;
-                case ConstraintMode.StateXorShift:
+                case ConstraintMode.StateXor:
                     TreeNode leftshift = new LeftShiftNode(new StateOneNode(), new ConstantNode(13));
                     TreeNode firstXorNode = new XorNode(new StateOneNode(), leftshift);
                     TreeNode secondXorNode = new XorNode(firstXorNode, new RightShiftNode(firstXorNode, new ConstantNode(7)));
@@ -209,82 +219,7 @@ namespace EnderPi.Framework.Simulation.Genetic
             var engine = GetEngine() as Engine;
             engine.Seed(Seed);
             return engine.GetBitMap(4096);
-        }         
-           
-
-
-        public void RenderAnimatedGif()
-        {
-            //if (_animatedGif == null)
-            //{
-            //    MemoryStream ms = new MemoryStream();
-            //    var gif = new AnimatedGifCreator(ms, 33);
-            //    var mainBitmap = GetImageBitMap();
-            //    gif.AddFrame(mainBitmap, 4000);
-
-            //    foreach (var frame in GetVerticalSquishAnimation(mainBitmap))
-            //    {
-            //        gif.AddFrame(frame);
-            //    }
-            //    gif.AddFrame(mainBitmap, 4000);
-            //    mainBitmap = GetImageBitMap();
-            //    gif.AddFrame(mainBitmap, 4000);
-
-            //    foreach (var frame in GetHorizontalSquishAnimation(mainBitmap))
-            //    {
-            //        gif.AddFrame(frame);
-            //    }
-            //    gif.AddFrame(mainBitmap, 4000);
-            //     AnimatedGif = ms.ToArray();
-            //    string base64Data = Convert.ToBase64String(AnimatedGif);
-            //    _animatedGif = "data:image/gif;base64," + base64Data;
-            //}
-        }
-
-        private IEnumerable<Bitmap> GetVerticalSquishAnimation(Bitmap bitmap)
-        {            
-            bool changeMade;
-            do
-            {
-                changeMade = false;
-                for (int x = 0; x < bitmap.Width; x++)
-                {
-                    for (int y = bitmap.Height - 1; y > 0 ; y--)
-                    {
-                        if (bitmap.GetPixel(x,y).ToArgb() == Color.Blue.ToArgb() && bitmap.GetPixel(x, y-1).ToArgb() == Color.Red.ToArgb())
-                        {
-                            bitmap.SetPixel(x, y, Color.Red);
-                            bitmap.SetPixel(x, y-1, Color.Blue);
-                            changeMade = true;
-                        }                        
-                    }                    
-                }
-                yield return bitmap;
-            } while (changeMade);
-        }
-
-        private IEnumerable<Bitmap> GetHorizontalSquishAnimation(Bitmap bitmap)
-        {
-            bool changeMade;
-            do
-            {
-                changeMade = false;
-                for (int y = 0; y < bitmap.Height; y++)
-                {
-                    for (int x = bitmap.Width - 1; x > 0; x--)
-                    {
-                        if (bitmap.GetPixel(x, y).ToArgb() == Color.Blue.ToArgb() && bitmap.GetPixel(x-1, y).ToArgb() == Color.Red.ToArgb())
-                        {
-                            bitmap.SetPixel(x, y, Color.Red);
-                            bitmap.SetPixel(x-1, y, Color.Blue);
-                            changeMade = true;
-                        }
-                    }
-                }
-                yield return bitmap;
-            } while (changeMade);
-        }
-
+        }                 
 
         private Bitmap GetImageSquishedBitmap()
         {
@@ -320,9 +255,7 @@ namespace EnderPi.Framework.Simulation.Genetic
             bitmap.Save(ms, ImageFormat.Gif);
             base64Data = Convert.ToBase64String(ms.ToArray());
             return "data:image/gif;base64," + base64Data;
-        }
-
-        public byte[] AnimatedGif;
+        }                
 
         /// <summary>
         /// Gets the total node count from all three trees.
@@ -358,23 +291,26 @@ namespace EnderPi.Framework.Simulation.Genetic
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Names all the constants so it can be displayed appropriately.
+        /// </summary>
         public void NameConstants()
         {
             int counter = 1;
+            _constantValue = new List<Tuple<ulong, string>>();
             for (int i=1; i <5; i++)
             {
                 var tree = GetTreeRoot(i);
                 var descendantConstants = tree.GetDescendants().Distinct().Where(x => x is ConstantNode).ToList();
-                List<Tuple<ulong, string>> names = new List<Tuple<ulong, string>>();
-                
+                                
                 foreach (var node in descendantConstants)
                 {
                     var constNode = node as ConstantNode;
                     if (constNode != null)
                     {
-                        if (!names.Any(x => x.Item1 == constNode.Value))
+                        if (!_constantValue.Any(x => x.Item1 == constNode.Value))
                         {
-                            names.Add(new Tuple<ulong, string>(constNode.Value, $"C{counter++}"));
+                            _constantValue.Add(new Tuple<ulong, string>(constNode.Value, $"C{counter++}"));
                         }
                     }                    
                 }
@@ -383,7 +319,7 @@ namespace EnderPi.Framework.Simulation.Genetic
                     var constNode = node as ConstantNode;
                     if (constNode != null)
                     {
-                        var item = names.FirstOrDefault(x=>x.Item1 == constNode.Value);
+                        var item = _constantValue.FirstOrDefault(x=>x.Item1 == constNode.Value);
                         if (item != null)
                         {
                             constNode.Name = item.Item2;

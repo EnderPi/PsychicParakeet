@@ -156,9 +156,9 @@ namespace EnderPi.Framework.Simulation.Genetic
         {
             switch (_parameters.CostMode)
             {
-                case GeneticCostMode.PreferLowerNodeCount:
+                case GeneticCostMode.FewerOperations:
                     return new SpeciesComparerNodes();
-                case GeneticCostMode.PreferLowerCost:
+                case GeneticCostMode.Faster:
                     return new SpeciesComparerCost();
             }
             return new SpeciesComparerNodes();
@@ -391,15 +391,7 @@ namespace EnderPi.Framework.Simulation.Genetic
             else if (nodeToMutate is SeedNode)
             {
                 //not much to do here
-            }
-            //else if (nodeToMutate is BinaryNode)
-            //{
-                
-            //}
-            //else if (nodeToMutate is UnaryNode)
-            //{
-
-            //}
+            }            
             
         }
 
@@ -460,109 +452,113 @@ namespace EnderPi.Framework.Simulation.Genetic
         }
 
         private TreeNode MakeNewBinaryNode(TreeNode randomLeaf, TreeNode secondNode)
-        {            
-            //List<TreeNode> possibleNodes = new List<TreeNode>(16);
-            //if (_parameters.AllowAdditionNodes)
-            //{
-            //    possibleNodes.Add(_randomEngine.PickRandomElement(new AdditionNode(randomLeaf, secondNode), new AdditionNode(secondNode, randomLeaf)));
-            //}
-            //if (_parameters.AllowSubtractionNodes)
-            //{
-            //    possibleNodes.Add(_randomEngine.PickRandomElement(new SubtractNode(randomLeaf, secondNode), new SubtractNode(secondNode, randomLeaf)));
-            //}
-            //if (_parameters.AllowMultiplicationNodes)
-            //{
-            //    possibleNodes.Add(_randomEngine.PickRandomElement(new MultiplicationNode(randomLeaf, secondNode), new MultiplicationNode(secondNode, randomLeaf)));
-            //}
-            //if (_parameters.AllowDivisionNodes)
-            //{
-            //    possibleNodes.Add(_randomEngine.PickRandomElement(new DivideNode(randomLeaf, secondNode), new DivideNode(secondNode, randomLeaf)));
-            //}
-            //if (_parameters.AllowOrNodes)
-            //{
-            //    possibleNodes.Add(_randomEngine.PickRandomElement(new OrNode(randomLeaf, secondNode), new OrNode(secondNode, randomLeaf)));
-            //}
-            //if (_parameters.AllowXorNodes)
-            //{
-            //    possibleNodes.Add(_randomEngine.PickRandomElement(new XorNode(randomLeaf, secondNode), new XorNode(secondNode, randomLeaf)));
-            //}
-            //if (_parameters.AllowAndNodes)
-            //{
-            //    possibleNodes.Add(_randomEngine.PickRandomElement(new AndNode(randomLeaf, secondNode), new AndNode(secondNode, randomLeaf)));
-            //}
-            //if (_parameters.AllowLeftShiftNodes)
-            //{
-            //    possibleNodes.Add(_randomEngine.PickRandomElement(new LeftShiftNode(randomLeaf, secondNode), new LeftShiftNode(secondNode, randomLeaf)));
-            //}
-            //if (_parameters.AllowRightShiftNodes)
-            //{
-            //    possibleNodes.Add(_randomEngine.PickRandomElement(new RightShiftNode(randomLeaf, secondNode), new RightShiftNode(secondNode, randomLeaf)));
-            //}
-            //if (_parameters.AllowRotateLeftNodes)
-            //{
-            //    possibleNodes.Add(_randomEngine.PickRandomElement(new RotateLeftNode(randomLeaf, secondNode), new RotateLeftNode(secondNode, randomLeaf)));
-            //}
-            //if (_parameters.AllowRotateRightNodes)
-            //{
-            //    possibleNodes.Add(_randomEngine.PickRandomElement(new RotateRightNode(randomLeaf, secondNode), new RotateRightNode(secondNode, randomLeaf)));
-            //}
-            //if (_parameters.AllowNotNodes)
-            //{
-            //    possibleNodes.Add(new NotNode(randomLeaf));
-            //}
-            //TreeNode result = _randomEngine.GetRandomElement(possibleNodes);
-            //result.GenerationOfOrigin = _generation;
-            //return result;
-
-
-            TreeNode result = null;
-            switch (_randomEngine.NextInt(0, 11))
+        {
+            List<TreeNode> possibleNodes = new List<TreeNode>(16);
+            if (_parameters.AllowAdditionNodes)
             {
-                case 0:
-                    result = _randomEngine.PickRandomElement(new AdditionNode(randomLeaf, secondNode), new AdditionNode(secondNode, randomLeaf));
-                    break;
-                case 1:
-                    result = _randomEngine.PickRandomElement(new SubtractNode(randomLeaf, secondNode), new SubtractNode(secondNode, randomLeaf));
-                    break;
-                case 2:
-                    result = _randomEngine.PickRandomElement(new MultiplicationNode(randomLeaf, secondNode), new MultiplicationNode(secondNode, randomLeaf));
-                    break;
-                case 3:
-                    result = _randomEngine.PickRandomElement(new DivideNode(randomLeaf, secondNode), new DivideNode(secondNode, randomLeaf));
-                    break;
-                case 4:
-                    result = _randomEngine.PickRandomElement(new OrNode(randomLeaf, secondNode), new OrNode(secondNode, randomLeaf));
-                    break;
-                case 5:
-                    result = _randomEngine.PickRandomElement(new XorNode(randomLeaf, secondNode), new XorNode(secondNode, randomLeaf));
-                    break;
-                case 6:
-                    result = _randomEngine.PickRandomElement(new AndNode(randomLeaf, secondNode), new AndNode(secondNode, randomLeaf));
-                    break;
-                case 7:
-                    result = _randomEngine.PickRandomElement(new LeftShiftNode(randomLeaf, secondNode), new LeftShiftNode(secondNode, randomLeaf));
-                    break;
-                case 8:
-                    result = _randomEngine.PickRandomElement(new RightShiftNode(randomLeaf, secondNode), new RightShiftNode(secondNode, randomLeaf));
-                    break;
-                case 9:
-                    result = _randomEngine.PickRandomElement(new RotateLeftNode(randomLeaf, secondNode), new RotateLeftNode(secondNode, randomLeaf));
-                    break;
-                case 10:
-                    result = _randomEngine.PickRandomElement(new RotateRightNode(randomLeaf, secondNode), new RotateRightNode(secondNode, randomLeaf));
-                    break;
-                case 11:
-                    result = new NotNode(randomLeaf);
-                    break;
-                case 12:
-                    result = new LoopNode(randomLeaf, 4);
-                    break;
-                default:
-                    result = _randomEngine.PickRandomElement(new AdditionNode(randomLeaf, secondNode), new AdditionNode(secondNode, randomLeaf));
-                    break;
+                possibleNodes.Add(_randomEngine.PickRandomElement(new AdditionNode(randomLeaf, secondNode), new AdditionNode(secondNode, randomLeaf)));
             }
+            if (_parameters.AllowSubtractionNodes)
+            {
+                possibleNodes.Add(_randomEngine.PickRandomElement(new SubtractNode(randomLeaf, secondNode), new SubtractNode(secondNode, randomLeaf)));
+            }
+            if (_parameters.AllowMultiplicationNodes)
+            {
+                possibleNodes.Add(_randomEngine.PickRandomElement(new MultiplicationNode(randomLeaf, secondNode), new MultiplicationNode(secondNode, randomLeaf)));
+            }
+            if (_parameters.AllowDivisionNodes)
+            {
+                possibleNodes.Add(_randomEngine.PickRandomElement(new DivideNode(randomLeaf, secondNode), new DivideNode(secondNode, randomLeaf)));
+            }
+            if (_parameters.AllowOrNodes)
+            {
+                possibleNodes.Add(_randomEngine.PickRandomElement(new OrNode(randomLeaf, secondNode), new OrNode(secondNode, randomLeaf)));
+            }
+            if (_parameters.AllowXorNodes)
+            {
+                possibleNodes.Add(_randomEngine.PickRandomElement(new XorNode(randomLeaf, secondNode), new XorNode(secondNode, randomLeaf)));
+            }
+            if (_parameters.AllowAndNodes)
+            {
+                possibleNodes.Add(_randomEngine.PickRandomElement(new AndNode(randomLeaf, secondNode), new AndNode(secondNode, randomLeaf)));
+            }
+            if (_parameters.AllowLeftShiftNodes)
+            {
+                possibleNodes.Add(_randomEngine.PickRandomElement(new LeftShiftNode(randomLeaf, secondNode), new LeftShiftNode(secondNode, randomLeaf)));
+            }
+            if (_parameters.AllowRightShiftNodes)
+            {
+                possibleNodes.Add(_randomEngine.PickRandomElement(new RightShiftNode(randomLeaf, secondNode), new RightShiftNode(secondNode, randomLeaf)));
+            }
+            if (_parameters.AllowRotateLeftNodes)
+            {
+                possibleNodes.Add(_randomEngine.PickRandomElement(new RotateLeftNode(randomLeaf, secondNode), new RotateLeftNode(secondNode, randomLeaf)));
+            }
+            if (_parameters.AllowRotateRightNodes)
+            {
+                possibleNodes.Add(_randomEngine.PickRandomElement(new RotateRightNode(randomLeaf, secondNode), new RotateRightNode(secondNode, randomLeaf)));
+            }
+            if (_parameters.AllowNotNodes)
+            {
+                possibleNodes.Add(new NotNode(randomLeaf));
+            }
+            if (_parameters.AllowRemainderNodes)
+            {
+                possibleNodes.Add(_randomEngine.PickRandomElement(new RemainderNode(randomLeaf, secondNode), new RemainderNode(secondNode, randomLeaf)));
+            }
+            TreeNode result = _randomEngine.GetRandomElement(possibleNodes);
             result.GenerationOfOrigin = _generation;
             return result;
+
+
+            //TreeNode result = null;
+            //switch (_randomEngine.NextInt(0, 12))
+            //{
+            //    case 0:
+            //        result = _randomEngine.PickRandomElement(new AdditionNode(randomLeaf, secondNode), new AdditionNode(secondNode, randomLeaf));
+            //        break;
+            //    case 1:
+            //        result = _randomEngine.PickRandomElement(new SubtractNode(randomLeaf, secondNode), new SubtractNode(secondNode, randomLeaf));
+            //        break;
+            //    case 2:
+            //        result = _randomEngine.PickRandomElement(new MultiplicationNode(randomLeaf, secondNode), new MultiplicationNode(secondNode, randomLeaf));
+            //        break;
+            //    case 3:
+            //        result = _randomEngine.PickRandomElement(new DivideNode(randomLeaf, secondNode), new DivideNode(secondNode, randomLeaf));
+            //        break;
+            //    case 4:
+            //        result = _randomEngine.PickRandomElement(new OrNode(randomLeaf, secondNode), new OrNode(secondNode, randomLeaf));
+            //        break;
+            //    case 5:
+            //        result = _randomEngine.PickRandomElement(new XorNode(randomLeaf, secondNode), new XorNode(secondNode, randomLeaf));
+            //        break;
+            //    case 6:
+            //        result = _randomEngine.PickRandomElement(new AndNode(randomLeaf, secondNode), new AndNode(secondNode, randomLeaf));
+            //        break;
+            //    case 7:
+            //        result = _randomEngine.PickRandomElement(new LeftShiftNode(randomLeaf, secondNode), new LeftShiftNode(secondNode, randomLeaf));
+            //        break;
+            //    case 8:
+            //        result = _randomEngine.PickRandomElement(new RightShiftNode(randomLeaf, secondNode), new RightShiftNode(secondNode, randomLeaf));
+            //        break;
+            //    case 9:
+            //        result = _randomEngine.PickRandomElement(new RotateLeftNode(randomLeaf, secondNode), new RotateLeftNode(secondNode, randomLeaf));
+            //        break;
+            //    case 10:
+            //        result = _randomEngine.PickRandomElement(new RotateRightNode(randomLeaf, secondNode), new RotateRightNode(secondNode, randomLeaf));
+            //        break;
+            //    case 11:
+            //        result = new NotNode(randomLeaf);
+            //        break;                
+            //    case 12:
+            //        result = _randomEngine.PickRandomElement(new RemainderNode(randomLeaf, secondNode), new RemainderNode(secondNode, randomLeaf));
+            //        break;
+            //    default:
+            //        result = _randomEngine.PickRandomElement(new AdditionNode(randomLeaf, secondNode), new AdditionNode(secondNode, randomLeaf));
+            //        break;
+            //}
+            //result.GenerationOfOrigin = _generation;
+            //return result;
 
         }
 

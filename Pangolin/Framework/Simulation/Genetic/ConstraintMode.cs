@@ -3,9 +3,9 @@
     public enum ConstraintMode
     {
         None = 0,
-        StateIncremental = 1,
-        StateLinearCongruential = 2,
-        StateXorShift = 3,
+        StateInc = 1,
+        StateLcg = 2,
+        StateXor = 3,
         StateWeyl = 4
     }
 }

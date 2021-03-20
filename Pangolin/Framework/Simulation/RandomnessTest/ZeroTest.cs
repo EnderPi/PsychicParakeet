@@ -12,18 +12,26 @@ namespace EnderPi.Framework.Simulation.RandomnessTest
 
         public int TestsPassed => _result == TestResult.Fail ? 0 : 1;
 
+        /// <summary>
+        /// Literally just fails if the same value appears 10 times in the first 50 values.
+        /// </summary>
+        /// <param name="detailed"></param>
         public void CalculateResult(bool detailed)
         {
-            if (_queue.Count == 50 && _queue.All(x=>x==0))
+            if (_queue.Count == 50)
             {
-                _result = TestResult.Fail;
+                var countOfDupes = _queue.GroupBy(x => x).OrderByDescending(y => y.Count()).First().Count();
+                if (countOfDupes > 10)
+                {
+                    _result = TestResult.Fail;
+                }
             }
         }
 
         public void Initialize()
         {
             _result = TestResult.Inconclusive;
-            _queue = new Queue<ulong>(50);
+            _queue = new Queue<ulong>(55);
         }
 
         public void Process(ulong randomNumber)
