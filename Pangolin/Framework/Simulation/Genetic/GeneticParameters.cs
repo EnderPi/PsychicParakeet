@@ -1,14 +1,20 @@
 ﻿using EnderPi.Framework.Simulation.RandomnessTest;
+using System;
 
 namespace EnderPi.Framework.Simulation.Genetic
 {
+    [Serializable]
     public class GeneticParameters
     {
         public TestLevel Level { set; get; }
 
-        public ConstraintMode Mode { set; get; }
+        public ConstraintMode ModeStateOne { set; get; }
+
+        public ConstraintMode ModeStateTwo { set; get; }
 
         public GeneticCostMode CostMode { set; get; }
+
+        public bool UseStateTwo { set; get; }
 
         public bool AllowAdditionNodes { set; get; }
 
@@ -17,6 +23,7 @@ namespace EnderPi.Framework.Simulation.Genetic
         public bool AllowMultiplicationNodes { set; get; }
 
         public bool AllowDivisionNodes { set; get; }
+        public bool AllowRemainderNodes { set; get; }
 
         public bool AllowRightShiftNodes { set; get; }
 

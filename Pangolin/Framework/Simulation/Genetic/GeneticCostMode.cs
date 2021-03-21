@@ -2,7 +2,7 @@
 {
     public enum GeneticCostMode
     {
-        PreferLowerNodeCount = 0,
-        PreferLowerCost = 1
+        FewerOperations = 0,
+        Faster = 1
     }
 }
