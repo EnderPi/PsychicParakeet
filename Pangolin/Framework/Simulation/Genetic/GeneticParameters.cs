@@ -8,7 +8,9 @@ namespace EnderPi.Framework.Simulation.Genetic
     {
         public TestLevel Level { set; get; }
 
-        public ConstraintMode Mode { set; get; }
+        public ConstraintMode ModeStateOne { set; get; }
+
+        public ConstraintMode ModeStateTwo { set; get; }
 
         public GeneticCostMode CostMode { set; get; }
 

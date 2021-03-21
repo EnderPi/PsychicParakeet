@@ -117,14 +117,17 @@ namespace EnderPi.Framework.Simulation.Genetic
                 _specimens = new List<RngSpecies>(speciesPerGeneration);
             }
             while (_specimens.Count < speciesPerGeneration)
-            {
-                int i = _parameters.Mode == ConstraintMode.None ? 1 : 3;
-                var species = new RngSpecies(_parameters.Mode);
-                for (; i <= 3; i++)
+            {                
+                var species = new RngSpecies(_parameters.ModeStateOne, _parameters.ModeStateTwo, _parameters.UseStateTwo);
+                if (_parameters.ModeStateOne == ConstraintMode.None)
                 {
-                    var treeToMutate = species.GetTreeRoot(i);
-                    AddNode(treeToMutate);                    
+                    AddNode(species.GetTreeRoot(1));
                 }
+                if (_parameters.UseStateTwo  && _parameters.ModeStateTwo == ConstraintMode.None)
+                {
+                    AddNode(species.GetTreeRoot(2));
+                }
+                AddNode(species.GetTreeRoot(3));                
                 AddSpecies(_specimens, species);                
             }
             foreach (var specimen in _specimens)
@@ -144,8 +147,11 @@ namespace EnderPi.Framework.Simulation.Genetic
         /// <param name="rngSpecies"></param>
         private void AddSpecies(List<RngSpecies> specimens, RngSpecies rngSpecies)
         {
-            rngSpecies.Generation = _generation;            
-            specimens.Add(rngSpecies);
+            if (rngSpecies.IsValid())
+            {
+                rngSpecies.Generation = _generation;
+                specimens.Add(rngSpecies);
+            }
             //write to the table, get the specimen ID.
             //rngSpecies.SpecimenId = 
 
@@ -221,7 +227,17 @@ namespace EnderPi.Framework.Simulation.Genetic
                     List<RngSpecies> children = Crossover(dad, mom);
                     MaybeMutate(provider, children);
                     FoldConstants(children, provider);
-                    _specimensNextGeneration.AddRange(children);
+                    foreach (var child in children)
+                    {
+                        if (child.IsValid())
+                        {
+                            _specimensNextGeneration.Add(child);
+                        }
+                        else
+                        {
+                            throw new Exception("Specimen failed validation!");
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -340,23 +356,11 @@ namespace EnderPi.Framework.Simulation.Genetic
                         
                         case 3:
                             ChangeANode(treeToMutateRoot);
-                            break;
-                        case 4:
-                            MakeTopALoop(treeToMutateRoot);
-                            break;
-                                                
+                            break;              
                     }                    
                 }
             }            
-        }
-
-        private void MakeTopALoop(TreeNode treeToMutateRoot)
-        {
-            var childToReplace = treeToMutateRoot.GetFirstChild();
-            var loopNode = new LoopNode(childToReplace, _randomEngine.NextInt(2, 8));
-            treeToMutateRoot.ReplaceFirstChild(loopNode);
-            
-        }
+        }                
 
         private void ChangeANode(TreeNode treeToMutateRoot)
         {
@@ -366,6 +370,7 @@ namespace EnderPi.Framework.Simulation.Genetic
             //if it's a constant, change the constant, or change the constant to a state.
             //if it's a state node, change it to the other state, or change it to a constant if that doesn't invalidate the parent.
             //if it's a binary node, flip the type.
+            //TODO haven't implemented flipping binary nodes yet.
             var descendants = treeToMutateRoot.GetDescendants().ToList();
             var nodeToMutate = _randomEngine.GetRandomElement(descendants);
             if (nodeToMutate is ConstantNode constantNode)
@@ -380,7 +385,12 @@ namespace EnderPi.Framework.Simulation.Genetic
             }
             else if (nodeToMutate is StateOneNode)
             {
-                var newNode = _randomEngine.PickRandomElement<TreeNode>(new StateTwoNode(), new ConstantNode(_randomEngine.Next64(0, long.MaxValue)));
+                List<TreeNode> newNodes = new List<TreeNode>() { new ConstantNode(_randomEngine.Next64(0, long.MaxValue))};
+                if (_parameters.UseStateTwo)
+                {
+                    newNodes.Add(new StateTwoNode());
+                }
+                var newNode = _randomEngine.GetRandomElement(newNodes);
                 treeToMutateRoot.ReplaceAllChildReferences(nodeToMutate, newNode);
             }
             else if (nodeToMutate is StateTwoNode)
@@ -441,7 +451,12 @@ namespace EnderPi.Framework.Simulation.Genetic
                 }
                 else
                 {
-                    secondNode = _randomEngine.PickRandomElement<TreeNode>(new StateOneNode(), new StateTwoNode());
+                    var secondNodes = new List<TreeNode>() { new StateOneNode()};
+                    if (_parameters.UseStateTwo)
+                    {
+                        secondNodes.Add(new StateTwoNode());
+                    }
+                    secondNode = _randomEngine.GetRandomElement(secondNodes);
                 }
             }
 
@@ -508,57 +523,7 @@ namespace EnderPi.Framework.Simulation.Genetic
             }
             TreeNode result = _randomEngine.GetRandomElement(possibleNodes);
             result.GenerationOfOrigin = _generation;
-            return result;
-
-
-            //TreeNode result = null;
-            //switch (_randomEngine.NextInt(0, 12))
-            //{
-            //    case 0:
-            //        result = _randomEngine.PickRandomElement(new AdditionNode(randomLeaf, secondNode), new AdditionNode(secondNode, randomLeaf));
-            //        break;
-            //    case 1:
-            //        result = _randomEngine.PickRandomElement(new SubtractNode(randomLeaf, secondNode), new SubtractNode(secondNode, randomLeaf));
-            //        break;
-            //    case 2:
-            //        result = _randomEngine.PickRandomElement(new MultiplicationNode(randomLeaf, secondNode), new MultiplicationNode(secondNode, randomLeaf));
-            //        break;
-            //    case 3:
-            //        result = _randomEngine.PickRandomElement(new DivideNode(randomLeaf, secondNode), new DivideNode(secondNode, randomLeaf));
-            //        break;
-            //    case 4:
-            //        result = _randomEngine.PickRandomElement(new OrNode(randomLeaf, secondNode), new OrNode(secondNode, randomLeaf));
-            //        break;
-            //    case 5:
-            //        result = _randomEngine.PickRandomElement(new XorNode(randomLeaf, secondNode), new XorNode(secondNode, randomLeaf));
-            //        break;
-            //    case 6:
-            //        result = _randomEngine.PickRandomElement(new AndNode(randomLeaf, secondNode), new AndNode(secondNode, randomLeaf));
-            //        break;
-            //    case 7:
-            //        result = _randomEngine.PickRandomElement(new LeftShiftNode(randomLeaf, secondNode), new LeftShiftNode(secondNode, randomLeaf));
-            //        break;
-            //    case 8:
-            //        result = _randomEngine.PickRandomElement(new RightShiftNode(randomLeaf, secondNode), new RightShiftNode(secondNode, randomLeaf));
-            //        break;
-            //    case 9:
-            //        result = _randomEngine.PickRandomElement(new RotateLeftNode(randomLeaf, secondNode), new RotateLeftNode(secondNode, randomLeaf));
-            //        break;
-            //    case 10:
-            //        result = _randomEngine.PickRandomElement(new RotateRightNode(randomLeaf, secondNode), new RotateRightNode(secondNode, randomLeaf));
-            //        break;
-            //    case 11:
-            //        result = new NotNode(randomLeaf);
-            //        break;                
-            //    case 12:
-            //        result = _randomEngine.PickRandomElement(new RemainderNode(randomLeaf, secondNode), new RemainderNode(secondNode, randomLeaf));
-            //        break;
-            //    default:
-            //        result = _randomEngine.PickRandomElement(new AdditionNode(randomLeaf, secondNode), new AdditionNode(secondNode, randomLeaf));
-            //        break;
-            //}
-            //result.GenerationOfOrigin = _generation;
-            //return result;
+            return result;                      
 
         }
 
@@ -618,18 +583,27 @@ namespace EnderPi.Framework.Simulation.Genetic
             daughter.Name = NameGenerator.GetName();
             daughter.Generation = _generation;
             son.Birthday = daughter.Birthday = DateTime.Now;
-            //pick a tree, favor state or output heavily, as seed doesn't matter much
-            int treeToModify = _parameters.Mode == ConstraintMode.None ? 1 : 3;
-            for (; treeToModify <= 5; treeToModify++)
+
+            CrossoverTree(son, daughter, 3);
+            if (_parameters.ModeStateOne == ConstraintMode.None)
             {
-                var sonTreeRoot = son.GetTreeRoot(treeToModify);
-                var daughterTreeRoot = daughter.GetTreeRoot(treeToModify);
-                TreeNode sonTreeNode = PickRandomTreeNode(sonTreeRoot);
-                TreeNode daughterTreeNode = PickRandomTreeNode(daughterTreeRoot);
-                sonTreeRoot.ReplaceAllChildReferences(sonTreeNode, daughterTreeNode);
-                daughterTreeRoot.ReplaceAllChildReferences(daughterTreeNode, sonTreeNode);
+                CrossoverTree(son, daughter, 1);
+            }
+            if (_parameters.UseStateTwo && _parameters.ModeStateTwo == ConstraintMode.None)
+            {
+                CrossoverTree(son, daughter, 2);
             }
             return new List<RngSpecies>() { son, daughter };
+        }
+
+        private void CrossoverTree(RngSpecies son, RngSpecies daughter, int treeToModify)
+        {
+            var sonTreeRoot = son.GetTreeRoot(treeToModify);
+            var daughterTreeRoot = daughter.GetTreeRoot(treeToModify);
+            TreeNode sonTreeNode = PickRandomTreeNode(sonTreeRoot);
+            TreeNode daughterTreeNode = PickRandomTreeNode(daughterTreeRoot);
+            sonTreeRoot.ReplaceAllChildReferences(sonTreeNode, daughterTreeNode);
+            daughterTreeRoot.ReplaceAllChildReferences(daughterTreeNode, sonTreeNode);
         }
 
         private TreeNode PickRandomTreeNode(TreeNode sonTreeRoot)
@@ -646,35 +620,16 @@ namespace EnderPi.Framework.Simulation.Genetic
 
         private int PickTreeToModify()
         {
-            if (_parameters.Mode == ConstraintMode.None)
+            List<int> treeInts = new List<int>() { 3};
+            if (_parameters.ModeStateOne == ConstraintMode.None)
             {
-                var number = _randomEngine.Next32(1, 32);
-                if (number <= 10)
-                {
-                    return 1;
-                }
-                if (number <= 20)
-                {
-                    return 2;
-                }
-                if (number <= 30)
-                {
-                    return 3;
-                }
-                if (number == 31)
-                {
-                    return 4;
-                }
-                if (number == 32)
-                {
-                    return 5;
-                }
+                treeInts.Add(1);
             }
-            else
+            if (_parameters.UseStateTwo && _parameters.ModeStateTwo == ConstraintMode.None)
             {
-                return 3;
+                treeInts.Add(2);
             }
-            return 3;
+            return _randomEngine.GetRandomElement(treeInts);
         }
 
         private void EvaluateFitness(RngSpecies specimen, CancellationToken token, ServiceProvider provider, int backgroundTaskId)

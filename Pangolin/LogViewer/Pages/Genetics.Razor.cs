@@ -151,10 +151,11 @@ namespace LogViewer.Pages
 
         public void BackgroundTaskDelegate()
         {
-            var parameters = _model.DeepCopy();
-            //parameters.Level = _model.Level;
-            //parameters.Mode = _model.Mode;
-            //parameters.CostMode = _model.CostMode;
+            if (_model.UseStateTwo)
+            {
+                _model.ModeStateTwo = ConstraintMode.None;
+            }
+            var parameters = _model.DeepCopy();            
             var geneticTask = new GeneticRngBreeding(parameters);
             try
             {

@@ -18,7 +18,8 @@ namespace EnderPi.Framework.Simulation.Genetic
         private TreeNode _seedOneRoot;
         private TreeNode _seedTwoRoot;
         private string _imageString;
-        private string _imageStringSquished;        
+        private string _imageStringSquished;
+        private bool _useStateTwo;
 
         /// <summary>
         /// How fit this specimen is.  Higher values are better.
@@ -115,45 +116,73 @@ namespace EnderPi.Framework.Simulation.Genetic
         /// <summary>
         /// Default constructor, generates very boring species with zero state transition and just the addition of the two states as output.
         /// </summary>
-        public RngSpecies():this(ConstraintMode.None)
+        public RngSpecies():this(ConstraintMode.None, ConstraintMode.None, true)
         {          
         }
 
-        public RngSpecies(ConstraintMode mode)
+        public RngSpecies(ConstraintMode modeOne, ConstraintMode modeTwo, bool useStateTwo)
         {
-            switch (mode)
+            _useStateTwo = useStateTwo;
+            switch (modeOne)
             {
                 case ConstraintMode.None:
-                    _stateOneRoot = new IntronNode(new StateOneNode());
-                    _stateTwoRoot = new IntronNode(new StateTwoNode());
+                    if (useStateTwo)
+                    {
+                        _stateOneRoot = new IntronNode(new AdditionNode(new StateOneNode(), new StateTwoNode()));
+                    }
+                    else
+                    {
+                        _stateOneRoot = new IntronNode(new StateOneNode());
+                    }
                     break;
                 case ConstraintMode.StateInc:
                     _stateOneRoot = new IntronNode(new AdditionNode(new StateOneNode(), new ConstantNode(1)));
-                    _stateTwoRoot = new IntronNode(new AdditionNode(new StateTwoNode(), new ConstantNode(1)));
                     break;
                 case ConstraintMode.StateLcg:
                     _stateOneRoot = new IntronNode(new AdditionNode(new MultiplicationNode(new StateOneNode(), new ConstantNode(3935559000370003845)), new ConstantNode(2691343689449507681)));
-                    _stateTwoRoot = new IntronNode(new AdditionNode(new MultiplicationNode(new StateTwoNode(), new ConstantNode(3935559000370003845)), new ConstantNode(2691343689449507681))); new IntronNode(new AdditionNode(new ConstantNode(1), new StateTwoNode()));
                     break;
                 case ConstraintMode.StateXor:
                     TreeNode leftshift = new LeftShiftNode(new StateOneNode(), new ConstantNode(13));
                     TreeNode firstXorNode = new XorNode(new StateOneNode(), leftshift);
                     TreeNode secondXorNode = new XorNode(firstXorNode, new RightShiftNode(firstXorNode, new ConstantNode(7)));
                     TreeNode thirdXorNode = new XorNode(secondXorNode, new LeftShiftNode(secondXorNode, new ConstantNode(17)));
+                    _stateOneRoot = new IntronNode(thirdXorNode);
+                    break;
+                case ConstraintMode.StateWeyl:
+                    _stateOneRoot = new IntronNode(new AdditionNode(new StateOneNode(), new ConstantNode(2048534558598693729)));
+                    break;
+            }
+            switch (modeTwo)
+            {
+                case ConstraintMode.None:
+                    _stateTwoRoot = new IntronNode(new AdditionNode(new StateOneNode(), new StateTwoNode()));
+                    break;
+                case ConstraintMode.StateInc:
+                    _stateTwoRoot = new IntronNode(new AdditionNode(new StateTwoNode(), new ConstantNode(1)));
+                    break;
+                case ConstraintMode.StateLcg:
+                    _stateTwoRoot = new IntronNode(new AdditionNode(new MultiplicationNode(new StateTwoNode(), new ConstantNode(3935559000370003845)), new ConstantNode(2691343689449507681))); new IntronNode(new AdditionNode(new ConstantNode(1), new StateTwoNode()));
+                    break;
+                case ConstraintMode.StateXor:
                     TreeNode leftshift2 = new LeftShiftNode(new StateTwoNode(), new ConstantNode(13));
                     TreeNode firstXorNode2 = new XorNode(new StateTwoNode(), leftshift2);
                     TreeNode secondXorNode2 = new XorNode(firstXorNode2, new RightShiftNode(firstXorNode2, new ConstantNode(7)));
                     TreeNode thirdXorNode2 = new XorNode(secondXorNode2, new LeftShiftNode(secondXorNode2, new ConstantNode(17)));
-                    _stateOneRoot = new IntronNode(thirdXorNode);
                     _stateTwoRoot = new IntronNode(thirdXorNode2);
                     break;
                 case ConstraintMode.StateWeyl:
-                    _stateOneRoot = new IntronNode(new AdditionNode(new StateOneNode(), new ConstantNode(2048534558598693729)));
                     _stateTwoRoot = new IntronNode(new AdditionNode(new StateTwoNode(), new ConstantNode(2048534558598693729)));
                     break;
             }
 
-            _outputRoot = new IntronNode(new AdditionNode(new StateOneNode(), new StateTwoNode()));
+            if (useStateTwo)
+            {
+                _outputRoot = new IntronNode(new AdditionNode(new StateOneNode(), new StateTwoNode()));
+            }
+            else
+            {
+                _outputRoot = new IntronNode(new StateOneNode());
+            }
             _seedOneRoot = new SeedRootNode(new SeedNode());
             _seedTwoRoot = new SeedRootNode(new SeedNode());
             Birthday = DateTime.Now;
@@ -247,6 +276,45 @@ namespace EnderPi.Framework.Simulation.Genetic
             return bitmap;
         }
 
+        internal bool IsValid()
+        {
+            bool stateOneHasStateOne = _stateOneRoot.GetDescendants().Any(x => x is StateOneNode);
+            bool stateOneHasStateTwo = _stateOneRoot.GetDescendants().Any(x => x is StateTwoNode);
+            bool stateTwoHasStateOne = _stateTwoRoot.GetDescendants().Any(x => x is StateOneNode);
+            bool stateTwoHasStateTwo = _stateTwoRoot.GetDescendants().Any(x => x is StateTwoNode);
+            bool outputHasStateOne = _outputRoot.GetDescendants().Any(x => x is StateOneNode);
+            bool outputHasStateTwo = _outputRoot.GetDescendants().Any(x => x is StateTwoNode);
+            if (_useStateTwo)
+            {
+                if (!outputHasStateOne || !outputHasStateTwo)
+                {
+                    return false;
+                }                
+                //If it doesn't have state ONE and it doesn't have state two, that's bad.
+                if (!stateOneHasStateOne && !stateOneHasStateTwo)
+                {
+                    return false;
+                }
+                if (!stateTwoHasStateOne && !stateTwoHasStateTwo)
+                {
+                    return false;
+                }
+                //todo seed validation.
+            }
+            else
+            {
+                if (!outputHasStateOne || outputHasStateTwo)
+                {
+                    return false;
+                }
+                if (!stateOneHasStateOne || stateOneHasStateTwo)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public string GetImageStringSquished()
         {
             string base64Data = string.Empty;
@@ -282,7 +350,14 @@ namespace EnderPi.Framework.Simulation.Genetic
         /// <returns></returns>
         public IEngine GetEngine()
         {
-            return new GeneticEngine(_stateOneRoot.Evaluate(), _stateTwoRoot.Evaluate(), _outputRoot.Evaluate(), _seedOneRoot.Evaluate(), _seedTwoRoot.Evaluate());            
+            if (!_useStateTwo)
+            {
+                return new GeneticEngineOneState(_stateOneRoot.Evaluate(), _outputRoot.Evaluate(), _seedOneRoot.Evaluate());
+            }
+            else
+            {
+                return new GeneticEngine(_stateOneRoot.Evaluate(), _stateTwoRoot.Evaluate(), _outputRoot.Evaluate(), _seedOneRoot.Evaluate(), _seedTwoRoot.Evaluate());
+            }
         }
 
         public bool Validate()
