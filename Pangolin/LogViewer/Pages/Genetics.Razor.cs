@@ -144,7 +144,6 @@ namespace LogViewer.Pages
             Thread backgroundThread = new Thread(BackgroundTaskDelegate, 10 * 1024 * 1024);
             backgroundThread.IsBackground = true;
             backgroundThread.Start();
-            //Task.Factory.StartNew(BackgroundTaskDelegate);
             _timer.Enabled = true;
 
         }
@@ -166,6 +165,7 @@ namespace LogViewer.Pages
                 provider.RegisterService(configurationDataAccess);
                 provider.RegisterService(backgroundTaskManager);
                 provider.RegisterService(logger);
+                provider.RegisterService(speciesNameManager);
                 geneticTask.Start(_source.Token, provider, 0, false);
                 AssignSpecies(geneticTask.Best);
                 _currentGeneration = geneticTask.Generations.ToString("N0");

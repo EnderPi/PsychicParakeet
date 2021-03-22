@@ -1,0 +1,59 @@
+﻿@page "/speciesnames"
+
+@using EnderPi.Framework.Pocos;
+
+@inject EnderPi.Framework.DataAccess.ISpeciesNameDataAccess speciesNameManager;
+
+<h3>SpeciesNames</h3>
+
+<EditForm Model="_model">
+    <table>
+        <tr>
+            <td>Name:</td>
+            <td><InputText @bind-Value="_model.Name" /></td>
+            <td><button type="button" class="btn btn-primary" @onclick="AddName">Add Name!</button></td>
+        </tr>
+    </table>
+</EditForm>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Counter</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var speciesName in _names)
+        {
+            <tr>
+                <td>@speciesName.Id</td>
+                <td>@speciesName.Name</td>
+                <td>@speciesName.Counter</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@code {
+
+    private List<SpeciesName> _names;
+
+    private LogViewer.Models.SpeciesNameModel _model  = new Models.SpeciesNameModel();
+
+    protected override Task OnInitializedAsync()
+    {
+        _names = speciesNameManager.GetAllNames();
+        return base.OnInitializedAsync();
+    }
+
+    private void AddName()
+    {
+        speciesNameManager.CreateNewName(_model.Name);
+        _names = speciesNameManager.GetAllNames();
+    }
+
+}

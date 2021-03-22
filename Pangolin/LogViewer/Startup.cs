@@ -60,11 +60,15 @@ namespace LogViewer
 
             var simDataAccess = new SimulationDataAccess(connectionString);
 
+            var speciesNames = new SpeciesNameDataAccess(connectionString);
+
             services.AddSingleton(logDataAccess);
             services.AddSingleton(myLogger);
             services.AddSingleton<IConfigurationDataAccess>(cachedConfigurationProvider);
+            services.AddSingleton<ConfigurationDataAccess>(configurationDataAccess);
             services.AddSingleton<IEventManager>(eventManager);
             services.AddSingleton<IBackgroundTaskManager>(new BackgroundTaskManager(simDataAccess, myLogger, cachedConfigurationProvider));
+            services.AddSingleton<ISpeciesNameDataAccess>(speciesNames);
 
         }
 
