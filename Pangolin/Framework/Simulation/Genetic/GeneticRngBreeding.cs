@@ -111,6 +111,7 @@ namespace EnderPi.Framework.Simulation.Genetic
             _generation = 0;
             _randomEngine = new Sha256();
             IConfigurationDataAccess configDataAccess = provider.GetService<IConfigurationDataAccess>();
+            ISpeciesNameDataAccess speciesNameDataAccess = provider.GetService<ISpeciesNameDataAccess>();
             int speciesPerGeneration = configDataAccess.GetGlobalSettingInt(GlobalSettings.GeneticGenerationSize, 128);
             if (_specimens == null)
             {
@@ -119,6 +120,7 @@ namespace EnderPi.Framework.Simulation.Genetic
             while (_specimens.Count < speciesPerGeneration)
             {                
                 var species = new RngSpecies(_parameters.ModeStateOne, _parameters.ModeStateTwo, _parameters.UseStateTwo);
+                species.Name = speciesNameDataAccess.GetRandomName();
                 if (_parameters.ModeStateOne == ConstraintMode.None)
                 {
                     AddNode(species.GetTreeRoot(1));
@@ -224,7 +226,7 @@ namespace EnderPi.Framework.Simulation.Genetic
                 {
                     RngSpecies dad = SelectRandomFitSpecimen(provider);
                     RngSpecies mom = SelectRandomFitSpecimen(provider);
-                    List<RngSpecies> children = Crossover(dad, mom);
+                    List<RngSpecies> children = Crossover(dad, mom, provider);
                     MaybeMutate(provider, children);
                     FoldConstants(children, provider);
                     foreach (var child in children)
@@ -572,15 +574,16 @@ namespace EnderPi.Framework.Simulation.Genetic
         /// <param name="dad"></param>
         /// <param name="mom"></param>
         /// <returns></returns>
-        private List<RngSpecies> Crossover(RngSpecies dad, RngSpecies mom)
-        {            
+        private List<RngSpecies> Crossover(RngSpecies dad, RngSpecies mom, ServiceProvider provider)
+        {
+            ISpeciesNameDataAccess speciesNamer = provider.GetService<ISpeciesNameDataAccess>();
             RngSpecies son = dad.DeepCopy();
             RngSpecies daughter = mom.DeepCopy();
             son.Fitness = 0;
             daughter.Fitness = 0;
             son.Generation = _generation;
-            son.Name = NameGenerator.GetName();
-            daughter.Name = NameGenerator.GetName();
+            son.Name = speciesNamer.GetRandomName();
+            daughter.Name = speciesNamer.GetRandomName();
             daughter.Generation = _generation;
             son.Birthday = daughter.Birthday = DateTime.Now;
 

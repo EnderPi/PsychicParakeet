@@ -185,8 +185,7 @@ namespace EnderPi.Framework.Simulation.Genetic
             }
             _seedOneRoot = new SeedRootNode(new SeedNode());
             _seedTwoRoot = new SeedRootNode(new SeedNode());
-            Birthday = DateTime.Now;
-            Name = NameGenerator.GetName();
+            Birthday = DateTime.Now;            
         }
 
         public void SetNodeAge(int age)
@@ -340,7 +339,7 @@ namespace EnderPi.Framework.Simulation.Genetic
         {
             get
             {
-                return 2*_stateOneRoot.GetTotalCost() + 2*_stateTwoRoot.GetTotalCost() + _outputRoot.GetTotalCost() + _seedOneRoot.GetTotalCost() + _seedTwoRoot.GetTotalCost();
+                return _stateOneRoot.GetTotalCost() + _stateTwoRoot.GetTotalCost() + _outputRoot.GetTotalCost() + _seedOneRoot.GetTotalCost() + _seedTwoRoot.GetTotalCost();
             }
         }
 
@@ -358,13 +357,7 @@ namespace EnderPi.Framework.Simulation.Genetic
             {
                 return new GeneticEngine(_stateOneRoot.Evaluate(), _stateTwoRoot.Evaluate(), _outputRoot.Evaluate(), _seedOneRoot.Evaluate(), _seedTwoRoot.Evaluate());
             }
-        }
-
-        public bool Validate()
-        {
-            //put validation in here to prevent essentially non-starter RNGs
-            throw new NotImplementedException();
-        }
+        }                
 
         /// <summary>
         /// Names all the constants so it can be displayed appropriately.

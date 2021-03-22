@@ -23,7 +23,7 @@ namespace EnderPi.Framework.Simulation.Genetic
 
         public override string EvaluatePretty()
         {
-            return $"RotateLeft({_children[0].EvaluatePretty()}, {_children[1].EvaluatePretty()})";
+            return $"RotateRight({_children[0].EvaluatePretty()}, {_children[1].EvaluatePretty()})";
         }
     }
 }

@@ -115,6 +115,11 @@
     <Build Include="GeneticRng\RngSpecimens.sql" />
     <Build Include="Simulations\CreateBirthdayTest.sql" />
     <Build Include="Simulations\CreateBirthdayTestDetail.sql" />
+    <Build Include="GeneticRng\SpeciesNames.sql" />
+    <Build Include="GeneticRng\GetNameCount.sql" />
+    <Build Include="GeneticRng\GetSpeciesName.sql" />
+    <Build Include="GeneticRng\CreateSpeciesName.sql" />
+    <Build Include="GeneticRng\GetAllSpeciesNames.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
