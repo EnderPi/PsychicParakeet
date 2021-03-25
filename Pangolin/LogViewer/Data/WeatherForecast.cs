@@ -1,6 +1,6 @@
 using System;
 
-namespace LogViewer.Data
+namespace GeneticWeb.Data
 {
     public class WeatherForecast
     {

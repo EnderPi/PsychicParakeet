@@ -47,7 +47,7 @@
                         {
                 <tr>
                     <td>@detail.Item1</td>
-                    <td>@detail.Item2</td>
+                    <td width="500">@detail.Item2</td>
                 </tr>
                         }
                     }
@@ -88,7 +88,7 @@
 
 @code {
 
-    private LogViewer.Models.LogSearchModel SearchModel = new Models.LogSearchModel() { BeginTime = DateTime.Now, EndTime = DateTime.Now };
+    private GeneticWeb.Models.LogSearchModel SearchModel = new Models.LogSearchModel() { BeginTime = DateTime.Now, EndTime = DateTime.Now };
 
     private int currentCount = 0;
 

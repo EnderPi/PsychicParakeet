@@ -32,7 +32,7 @@ namespace EnderPi.Framework.DataAccess
                     var param = command.Parameters.Add("@Seed", SqlDbType.Decimal);
                     param.Precision = 20;
                     param.Scale = 0;
-                    command.Parameters.Add(param);
+                    param.Value = seed;
                     command.Parameters.Add("@NumberOfBirthdays", SqlDbType.Int).Value = birthdaysInTheYear;
                     sqlConnection.Open();
                     command.ExecuteNonQuery();

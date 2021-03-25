@@ -1,11 +1,15 @@
 ﻿using EnderPi.Framework.Simulation.RandomnessTest;
-using System;
+using EnderPi.Framework.Simulation.Genetic;
 
-namespace EnderPi.Framework.Simulation.Genetic
+namespace EnderPi.Framework.Pocos
 {
-    [Serializable]
-    public class GeneticParameters
+    /// <summary>
+    /// A record in the GeneticRng.GeneticSimulation table.
+    /// </summary>
+    public class GeneticSimulationPoco
     {
+        public int Id { set; get; }
+
         public TestLevel Level { set; get; }
 
         public ConstraintMode ModeStateOne { set; get; }
@@ -41,6 +45,5 @@ namespace EnderPi.Framework.Simulation.Genetic
         public bool AllowNotNodes { set; get; }
 
         public bool AllowXorNodes { set; get; }
-
     }
 }

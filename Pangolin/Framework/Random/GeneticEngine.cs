@@ -21,6 +21,7 @@ namespace EnderPi.Framework.Random
         {
             _context = new ExpressionContext();
             _context.Imports.AddType(typeof(Math));
+            _context.Imports.AddType(typeof(RandomHelper));
             _context.Variables[StateOneNode.Name] = ulong.MaxValue;
             _context.Variables[StateTwoNode.Name] = ulong.MaxValue;
             _context.Variables[SeedNode.Name] = ulong.MaxValue;

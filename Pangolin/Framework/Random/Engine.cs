@@ -231,9 +231,15 @@ namespace EnderPi.Framework.Random
             return (int)Next32((uint)lower, (uint)upper);
         }
 
+        /// <summary>
+        /// Returns a random element from the given list.  Throws if the list is null or empty.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
         public T GetRandomElement<T>(List<T> list)
         {
-            if (list == null)
+            if (list == null || list.Count == 0)
             {
                 throw new ArgumentNullException(nameof(list));
             }

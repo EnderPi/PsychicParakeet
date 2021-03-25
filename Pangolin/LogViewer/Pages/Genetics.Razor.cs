@@ -1,5 +1,5 @@
 ﻿using EnderPi.Framework.Simulation.Genetic;
-using LogViewer.Models;
+using GeneticWeb.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
@@ -15,7 +15,7 @@ using EnderPi.Framework.Logging;
 using EnderPi.Framework.Threading;
 using EnderPi.Framework.Extensions;
 
-namespace LogViewer.Pages
+namespace GeneticWeb.Pages
 {
     /// <summary>
     /// Code behind for the genetics page.
@@ -166,6 +166,8 @@ namespace LogViewer.Pages
                 provider.RegisterService(backgroundTaskManager);
                 provider.RegisterService(logger);
                 provider.RegisterService(speciesNameManager);
+                provider.RegisterService(geneticSimulationManager);
+                provider.RegisterService(geneticSpecimenManager);
                 geneticTask.Start(_source.Token, provider, 0, false);
                 AssignSpecies(geneticTask.Best);
                 _currentGeneration = geneticTask.Generations.ToString("N0");

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace LogViewer.Data.Migrations
+namespace GeneticWeb.Data.Migrations
 {
     public partial class CreateIdentitySchema : Migration
     {

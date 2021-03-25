@@ -27,11 +27,11 @@ BEGIN
         VALUES (@VersionGuid, 'Default Message Queue Configuration', CURRENT_TIMESTAMP)
 END
 
-SET @VersionGuid = 'B3476398-E9C5-4DFC-A862-C5D32E716D6B'
+SET @VersionGuid = '15B52EFD-6356-41DC-B3E0-69ADD6C1EDCC'
 IF NOT EXISTS (SELECT 1 FROM [Configuration].[DatabaseScriptHistory] WHERE [Id] = @VersionGuid)
 BEGIN
-    INSERT INTO [Configuration].[ApplicationSettings] ([Application], [Name], [Value]) VALUES ('LogViewer','EventQueueName','EventsLogViewer')
-    INSERT INTO [Configuration].[ApplicationSettings] ([Application], [Name], [Value]) VALUES ('LogViewer','LogLevel','31')
+    INSERT INTO [Configuration].[ApplicationSettings] ([Application], [Name], [Value]) VALUES ('GeneticWeb','EventQueueName','EventsGeneticWeb')
+    INSERT INTO [Configuration].[ApplicationSettings] ([Application], [Name], [Value]) VALUES ('GeneticWeb','LogLevel','31')
     INSERT INTO [Configuration].[DatabaseScriptHistory] ([Id], [Description], [TimeStamp])
         VALUES (@VersionGuid, 'Default Web Application COnfigurations', CURRENT_TIMESTAMP)
 END

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace LogViewer.Models
+namespace GeneticWeb.Models
 {
     public class LogSearchModel
     {

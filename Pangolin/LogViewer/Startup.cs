@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using LogViewer.Areas.Identity;
-using LogViewer.Data;
+using GeneticWeb.Areas.Identity;
+using GeneticWeb.Data;
 using EnderPi.Framework.Logging;
 using EnderPi.Framework.DataAccess;
 using EnderPi.Framework.Messaging;
@@ -17,7 +17,7 @@ using EnderPi.Framework.Threading;
 using EnderPi.Framework.Caching;
 using EnderPi.Framework.BackgroundWorker;
 
-namespace LogViewer
+namespace GeneticWeb
 {
     public class Startup
     {
@@ -62,6 +62,11 @@ namespace LogViewer
 
             var speciesNames = new SpeciesNameDataAccess(connectionString);
 
+            IGeneticSpecimenDataAccess speciesDataAccess = new GeneticSpecimenDataAccess(connectionString);
+            IGeneticSimulationDataAccess geneticsimulationDataAccess = new GeneticSimulationDataAccess(connectionString);
+
+            services.AddSingleton(speciesDataAccess);
+            services.AddSingleton(geneticsimulationDataAccess);
             services.AddSingleton(logDataAccess);
             services.AddSingleton(myLogger);
             services.AddSingleton<IConfigurationDataAccess>(cachedConfigurationProvider);
