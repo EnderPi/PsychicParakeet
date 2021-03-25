@@ -120,6 +120,11 @@
     <Build Include="GeneticRng\GetSpeciesName.sql" />
     <Build Include="GeneticRng\CreateSpeciesName.sql" />
     <Build Include="GeneticRng\GetAllSpeciesNames.sql" />
+    <Build Include="GeneticRng\GeneticSimulation.sql" />
+    <Build Include="GeneticRng\CreateGeneticSimulation.sql" />
+    <Build Include="GeneticRng\GetGeneticSimulation.sql" />
+    <Build Include="GeneticRng\CreateRngSpecimen.sql" />
+    <Build Include="GeneticRng\MarkSpecimenConverged.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

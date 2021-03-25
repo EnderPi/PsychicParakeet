@@ -132,6 +132,11 @@ namespace EnderPi.Framework.Simulation.Genetic
             return _children[0];
         }
 
+        public TreeNode GetSecondChild()
+        {
+            return _children[1];
+        }
+
         public void ReplaceFirstChild(TreeNode replacement)
         {
             _children[0] = replacement;
@@ -143,5 +148,9 @@ namespace EnderPi.Framework.Simulation.Genetic
         /// <returns></returns>
         public abstract string EvaluatePretty();
 
+        internal bool IsBinaryNode()
+        {
+            return (_children != null && _children.Count == 2);
+        }
     }
 }

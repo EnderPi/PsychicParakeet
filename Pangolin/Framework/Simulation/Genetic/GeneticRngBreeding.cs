@@ -50,6 +50,7 @@ namespace EnderPi.Framework.Simulation.Genetic
 
         public int Generations { get { return _generation; } }
 
+        private int _simulationId;
 
         /// <summary>
         /// Feels like just for testing right now.
@@ -140,6 +141,9 @@ namespace EnderPi.Framework.Simulation.Genetic
             }
             _specimens = _specimens.OrderByDescending(x => x, GetSpeciesComparer()).ToList();
             OnGenerationFinished(provider);
+
+            var geneticSimulationDataAccess = provider.GetService<IGeneticSimulationDataAccess>();
+            _simulationId = geneticSimulationDataAccess.CreateGeneticSimulation(_parameters);            
         }
 
         /// <summary>
@@ -179,8 +183,6 @@ namespace EnderPi.Framework.Simulation.Genetic
             {
                 _generation++;
                 _randomEngine.Seed(Engine.Crypto64());
-                //INJECT ANY FROM DATERBASE TABLE IF THEY EXIST
-                
                 
                 _specimensNextGeneration = new List<RngSpecies>();
                 _specimensNextGeneration.AddRange(EliteSpecimens(provider));
@@ -372,6 +374,8 @@ namespace EnderPi.Framework.Simulation.Genetic
             //if it's a constant, change the constant, or change the constant to a state.
             //if it's a state node, change it to the other state, or change it to a constant if that doesn't invalidate the parent.
             //if it's a binary node, flip the type.
+
+
             //TODO haven't implemented flipping binary nodes yet.
             var descendants = treeToMutateRoot.GetDescendants().ToList();
             var nodeToMutate = _randomEngine.GetRandomElement(descendants);
@@ -403,7 +407,12 @@ namespace EnderPi.Framework.Simulation.Genetic
             else if (nodeToMutate is SeedNode)
             {
                 //not much to do here
-            }            
+            }
+            else if (nodeToMutate.IsBinaryNode())
+            {
+                var newNode = MakeNewBinaryNode(nodeToMutate.GetFirstChild(), nodeToMutate.GetSecondChild());
+                treeToMutateRoot.ReplaceAllChildReferences(nodeToMutate, newNode);
+            }
             
         }
 
@@ -427,10 +436,13 @@ namespace EnderPi.Framework.Simulation.Genetic
             treeToMutateRoot.ReplaceAllChildReferences(nodeToDelete, replacementNode);            
         }
 
+        /// <summary>
+        /// Adds a random node at a random leaf of the given root.
+        /// </summary>
+        /// <param name="treeToMutateRoot"></param>
         private void AddNode(TreeNode treeToMutateRoot)
         {
             var leafNodes = treeToMutateRoot.GetDescendants().Where(x => x.IsLeafNode).ToList();
-            //pick a random leaf
             var randomLeaf = _randomEngine.GetRandomElement(leafNodes);
             TreeNode secondNode;
 
@@ -523,20 +535,26 @@ namespace EnderPi.Framework.Simulation.Genetic
             {
                 possibleNodes.Add(_randomEngine.PickRandomElement(new RemainderNode(randomLeaf, secondNode), new RemainderNode(secondNode, randomLeaf)));
             }
+            //possibleNodes.Add(new RindjaelNode(randomLeaf));
             TreeNode result = _randomEngine.GetRandomElement(possibleNodes);
             result.GenerationOfOrigin = _generation;
             return result;                      
 
         }
 
+        /// <summary>
+        /// Picks a random specimen from the current generation, via tournament selection (biased towards fitter).  
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <returns></returns>
         private RngSpecies SelectRandomFitSpecimen(ServiceProvider provider)
         {
-            //coding tournament selection\
+            //tournament selection
             var globalsettingsDataAccess = provider.GetService<IConfigurationDataAccess>();
-            //TODO cache this, or inject a cached provider
             int tournamentSize = globalsettingsDataAccess.GetGlobalSettingInt(GlobalSettings.GeneticTournamentPopulation, 8);
             double probability = globalsettingsDataAccess.GetGlobalSettingDouble(GlobalSettings.GeneticTournamentProbability, 0.9);
-            //select tournamanet size specimens.
+            
+            //select tournament size specimens.
             var specimenlist = new List<RngSpecies>(_specimens);
             _randomEngine.Shuffle(specimenlist);
             specimenlist = specimenlist.Take(tournamentSize).ToList();
@@ -546,6 +564,12 @@ namespace EnderPi.Framework.Simulation.Genetic
             return selectedSpecimen;
         }
 
+        /// <summary>
+        /// Selects a random element by tournament.  Probably should cache the probabilities.
+        /// </summary>
+        /// <param name="specimenlist"></param>
+        /// <param name="p"></param>
+        /// <returns></returns>
         private RngSpecies SelectByTournament(List<RngSpecies> specimenlist, double p)
         {
             double[] probs = new double[specimenlist.Count];
@@ -612,13 +636,7 @@ namespace EnderPi.Framework.Simulation.Genetic
         private TreeNode PickRandomTreeNode(TreeNode sonTreeRoot)
         {
             var childrenNodes = sonTreeRoot.GetDescendants();
-            int count = childrenNodes.Count;
-            if (count == 1)
-            {
-                return childrenNodes[0];
-            }            
-            int index = Convert.ToInt32(_randomEngine.Next32(0, (uint)(count - 1)));
-            return childrenNodes[index];
+            return _randomEngine.GetRandomElement(childrenNodes);
         }
 
         private int PickTreeToModify()
@@ -645,11 +663,14 @@ namespace EnderPi.Framework.Simulation.Genetic
             try
             {
                 var engine = specimen.GetEngine();
-                specimen.Seed = Engine.Crypto64();
+                specimen.Seed = _randomEngine.Next64();
                 randomTest = new RandomnessSimulation(_parameters.Level, engine, specimen.Seed);
                 randomTest.Start(token, provider, backgroundTaskId, false);
                 specimen.Fitness = randomTest.Iterations;
                 specimen.TestsPassed = randomTest.TestsPassed;
+                specimen.NameConstants();
+                IGeneticSpecimenDataAccess specimenDataAccess = provider.GetService<IGeneticSpecimenDataAccess>();
+                specimen.SpecimenId = specimenDataAccess.CreateSpecimen(specimen, _simulationId);                
             }
             catch (DivideByZeroException)
             {
@@ -664,7 +685,7 @@ namespace EnderPi.Framework.Simulation.Genetic
             }
             catch (Exception ex)
             {
-                //An exception means there's something fatal, like a divide by zero.
+                //An exception means there's something fatal.
                 specimen.Fitness = -1;
                 var logger = provider.GetService<Logger>();
                 var details = new LogDetails();
@@ -675,7 +696,8 @@ namespace EnderPi.Framework.Simulation.Genetic
 
         protected override void StoreFinalResults(ServiceProvider provider, int backgroundTaskId, bool persistState)
         {
-            //throw new NotImplementedException();
+            IGeneticSpecimenDataAccess specimenDataAccess = provider.GetService<IGeneticSpecimenDataAccess>();
+            specimenDataAccess.MarkAsConverged(Best.SpecimenId);
         }
     }
 }

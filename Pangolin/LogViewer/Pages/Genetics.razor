@@ -4,7 +4,7 @@
 @using EnderPi.Framework.DataAccess;
 @using EnderPi.Framework.BackgroundWorker;
 @using EnderPi.Framework.Threading;
-@using LogViewer.Models;
+@using GeneticWeb.Models;
 @using System.IO;
 @using System.Drawing.Imaging;
 @using EnderPi.Framework.Logging;
@@ -16,12 +16,14 @@
 @inject EnderPi.Framework.BackgroundWorker.IBackgroundTaskManager backgroundTaskManager;
 @inject EnderPi.Framework.Logging.Logger logger;
 @inject EnderPi.Framework.DataAccess.ISpeciesNameDataAccess speciesNameManager;
+@inject EnderPi.Framework.DataAccess.IGeneticSimulationDataAccess geneticSimulationManager;
+@inject EnderPi.Framework.DataAccess.IGeneticSpecimenDataAccess geneticSpecimenManager;
 
 
 <h3>Genetic Programming for Random Number Generators</h3>
 
 <div>
-    <div>        
+    <div>
         <br />
         <table>
             <tr>
@@ -36,9 +38,9 @@
                                     <InputSelect @bind-Value="@_model.Level" TValue=EnderPi.Framework.Simulation.RandomnessTest.TestLevel>
                                         @foreach (var level in Enum.GetValues(typeof(EnderPi.Framework.Simulation.RandomnessTest.TestLevel)))
                                         {
-                                        @if ((EnderPi.Framework.Simulation.RandomnessTest.TestLevel)level != EnderPi.Framework.Simulation.RandomnessTest.TestLevel.Adhoc)
+                                            @if ((EnderPi.Framework.Simulation.RandomnessTest.TestLevel)level != EnderPi.Framework.Simulation.RandomnessTest.TestLevel.Adhoc)
                                             {
-                                        <option value="@level">@level</option>
+                                                <option value="@level">@level</option>
                                             }
                                         }
                                     </InputSelect>
@@ -52,7 +54,7 @@
                                     <InputSelect @bind-Value="@_model.CostMode" TValue=EnderPi.Framework.Simulation.Genetic.GeneticCostMode>
                                         @foreach (var mode in Enum.GetValues(typeof(EnderPi.Framework.Simulation.Genetic.GeneticCostMode)))
                                         {
-                                        <option value="@mode">@mode</option>
+                                            <option value="@mode">@mode</option>
                                         }
                                     </InputSelect>
                                 </td>
@@ -61,11 +63,11 @@
                                 <td>
                                     <label style="padding-right:6px;vertical-align:top">Mode State One:</label>
                                 </td>
-                                <td align="right"  valign="top">
+                                <td align="right" valign="top">
                                     <InputSelect @bind-Value="@_model.ModeStateOne" TValue=EnderPi.Framework.Simulation.Genetic.ConstraintMode>
                                         @foreach (var mode in Enum.GetValues(typeof(EnderPi.Framework.Simulation.Genetic.ConstraintMode)))
                                         {
-                                        <option value="@mode">@mode</option>
+                                            <option value="@mode">@mode</option>
                                         }
                                     </InputSelect>
                                 </td>
@@ -80,19 +82,19 @@
                             </tr>
                             @if (_model.UseStateTwo)
                             {
-                            <tr>
-                                <td>
-                                    <label style="padding-right:6px">Mode State Two:</label>
-                                </td>
-                                <td align="right" valign="top">
-                                    <InputSelect @bind-Value="@_model.ModeStateTwo" TValue=EnderPi.Framework.Simulation.Genetic.ConstraintMode>
-                                        @foreach (var mode in Enum.GetValues(typeof(EnderPi.Framework.Simulation.Genetic.ConstraintMode)))
-                                        {
-                                        <option value="@mode">@mode</option>
-                                        }
-                                    </InputSelect>
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td>
+                                        <label style="padding-right:6px">Mode State Two:</label>
+                                    </td>
+                                    <td align="right" valign="top">
+                                        <InputSelect @bind-Value="@_model.ModeStateTwo" TValue=EnderPi.Framework.Simulation.Genetic.ConstraintMode>
+                                            @foreach (var mode in Enum.GetValues(typeof(EnderPi.Framework.Simulation.Genetic.ConstraintMode)))
+                                            {
+                                                <option value="@mode">@mode</option>
+                                            }
+                                        </InputSelect>
+                                    </td>
+                                </tr>
                             }
                         </table>
                         <div>
@@ -198,11 +200,11 @@
                             </tr>
                             @if (_model.UseStateTwo)
                             {
-                            <tr>
-                                <td>State Two Function (B):</td>
-                                <td>@_bestSpecies.GetTreeRoot(2).EvaluatePretty()</td>
-                                <td>@_randomSpecies.GetTreeRoot(2).EvaluatePretty()</td>
-                            </tr>
+                                <tr>
+                                    <td>State Two Function (B):</td>
+                                    <td>@_bestSpecies.GetTreeRoot(2).EvaluatePretty()</td>
+                                    <td>@_randomSpecies.GetTreeRoot(2).EvaluatePretty()</td>
+                                </tr>
                             }
                             <tr>
                                 <td>Output Function:</td>
