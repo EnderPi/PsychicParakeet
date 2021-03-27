@@ -11,6 +11,8 @@ namespace EnderPi.Framework.Simulation.Genetic
         public List<RngSpecies> ThisGeneration { set; get; }
 
         public Bitmap Image { set; get; }
+
+        public int Iteration { set; get; }
         
     }
 }

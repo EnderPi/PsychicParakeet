@@ -1,5 +1,6 @@
 ﻿using EnderPi.Framework.Simulation.RandomnessTest;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace EnderPi.Framework.Simulation.Genetic
 {
@@ -15,6 +16,8 @@ namespace EnderPi.Framework.Simulation.Genetic
         public GeneticCostMode CostMode { set; get; }
 
         public bool UseStateTwo { set; get; }
+
+        public int Iterations { set; get; }
 
         public bool AllowAdditionNodes { set; get; }
 

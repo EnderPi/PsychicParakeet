@@ -52,6 +52,8 @@ namespace EnderPi.Framework.DataAccess
                     command.Parameters.Add("@AllowOrNodes", SqlDbType.Bit).Value = geneticSimulation.AllowOrNodes;
                     command.Parameters.Add("@AllowNotNodes", SqlDbType.Bit).Value = geneticSimulation.AllowNotNodes;
                     command.Parameters.Add("@AllowXorNodes", SqlDbType.Bit).Value = geneticSimulation.AllowXorNodes;
+                    command.Parameters.Add("@Iterations", SqlDbType.Int).Value = geneticSimulation.Iterations;
+                    command.Parameters.Add("@TimeCreated", SqlDbType.DateTime).Value = DateTime.Now;
                     sqlConnection.Open();
                     return (int)command.ExecuteScalar();
                 }
