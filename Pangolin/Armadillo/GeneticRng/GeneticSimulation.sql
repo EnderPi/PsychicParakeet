@@ -18,5 +18,7 @@
     [AllowAndNodes] BIT NOT NULL,
     [AllowOrNodes] BIT NOT NULL,
     [AllowNotNodes] BIT NOT NULL,
-    [AllowXorNodes] BIT NOT NULL	
+    [AllowXorNodes] BIT NOT NULL,
+    [Iterations] INT NULL,
+    [TimeCreated] DATETIME NULL
 )

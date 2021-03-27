@@ -16,14 +16,16 @@
     @AllowAndNodes BIT,
     @AllowOrNodes BIT,
     @AllowNotNodes BIT,
-    @AllowXorNodes BIT	
+    @AllowXorNodes BIT,
+    @Iterations INT,
+    @TimeCreated DATETIME
 AS
 	INSERT INTO [GeneticRng].[GeneticSimulation]
     ([TestLevel],[ModeStateOne],[ModeStateTwo],[CostMode],[UseStateTwo],[AllowAdditionNodes],[AllowSubtractionNodes],[AllowMultiplicationNodes],
     [AllowDivisionNodes],[AllowRemainderNodes],[AllowRightShiftNodes],[AllowLeftShiftNodes],[AllowRotateLeftNodes],[AllowRotateRightNodes],
-    [AllowAndNodes],[AllowOrNodes],[AllowNotNodes],[AllowXorNodes])
+    [AllowAndNodes],[AllowOrNodes],[AllowNotNodes],[AllowXorNodes],[Iterations],[TimeCreated])
     VALUES
     (@TestLevel,@ModeStateOne,@ModeStateTwo,@CostMode,@UseStateTwo,@AllowAdditionNodes,@AllowSubtractionNodes,@AllowMultiplicationNodes,
     @AllowDivisionNodes,@AllowRemainderNodes,@AllowRightShiftNodes,@AllowLeftShiftNodes,@AllowRotateLeftNodes,@AllowRotateRightNodes,
-    @AllowAndNodes,@AllowOrNodes,@AllowNotNodes,@AllowXorNodes)
+    @AllowAndNodes,@AllowOrNodes,@AllowNotNodes,@AllowXorNodes,@Iterations,@TimeCreated)
 SELECT CONVERT(INT,SCOPE_IDENTITY())

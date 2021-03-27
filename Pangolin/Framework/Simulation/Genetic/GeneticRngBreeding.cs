@@ -59,6 +59,7 @@ namespace EnderPi.Framework.Simulation.Genetic
 
         public RngSpecies Best { get { return _specimens.OrderByDescending(x => x.Fitness).FirstOrDefault(); } }
 
+        private int _iteration;
 
         public delegate void GeneticEventHandler(object sender, GeneticEventArgs e);
 
@@ -71,6 +72,7 @@ namespace EnderPi.Framework.Simulation.Genetic
             try
             {
                 e.Generation = _generation;
+                e.Iteration = _iteration;
                 e.ThisGeneration = _specimens.DeepCopy();
                 var engine = e.ThisGeneration[0].GetEngine() as Engine;
                 engine.Seed(e.ThisGeneration[0].Seed);
@@ -109,29 +111,33 @@ namespace EnderPi.Framework.Simulation.Genetic
         /// <param name="persistState"></param>
         protected override void InitializeInternal(CancellationToken token, ServiceProvider provider, int backgroundTaskId, bool persistState)
         {
-            _generation = 0;
             _randomEngine = new Sha256();
+            var geneticSimulationDataAccess = provider.GetService<IGeneticSimulationDataAccess>();
+            _simulationId = geneticSimulationDataAccess.CreateGeneticSimulation(_parameters);
+            _iteration = 0;
+        }
+
+        private void InitializeGeneration(CancellationToken token, ServiceProvider provider, int backgroundTaskId, bool persistState)
+        {
+            _generation = 0;
             IConfigurationDataAccess configDataAccess = provider.GetService<IConfigurationDataAccess>();
             ISpeciesNameDataAccess speciesNameDataAccess = provider.GetService<ISpeciesNameDataAccess>();
             int speciesPerGeneration = configDataAccess.GetGlobalSettingInt(GlobalSettings.GeneticGenerationSize, 128);
-            if (_specimens == null)
-            {
-                _specimens = new List<RngSpecies>(speciesPerGeneration);
-            }
+            _specimens = new List<RngSpecies>(speciesPerGeneration);
             while (_specimens.Count < speciesPerGeneration)
-            {                
+            {
                 var species = new RngSpecies(_parameters.ModeStateOne, _parameters.ModeStateTwo, _parameters.UseStateTwo);
                 species.Name = speciesNameDataAccess.GetRandomName();
                 if (_parameters.ModeStateOne == ConstraintMode.None)
                 {
                     AddNode(species.GetTreeRoot(1));
                 }
-                if (_parameters.UseStateTwo  && _parameters.ModeStateTwo == ConstraintMode.None)
+                if (_parameters.UseStateTwo && _parameters.ModeStateTwo == ConstraintMode.None)
                 {
                     AddNode(species.GetTreeRoot(2));
                 }
-                AddNode(species.GetTreeRoot(3));                
-                AddSpecies(_specimens, species);                
+                AddNode(species.GetTreeRoot(3));
+                AddSpecies(_specimens, species);
             }
             foreach (var specimen in _specimens)
             {
@@ -141,10 +147,8 @@ namespace EnderPi.Framework.Simulation.Genetic
             }
             _specimens = _specimens.OrderByDescending(x => x, GetSpeciesComparer()).ToList();
             OnGenerationFinished(provider);
-
-            var geneticSimulationDataAccess = provider.GetService<IGeneticSimulationDataAccess>();
-            _simulationId = geneticSimulationDataAccess.CreateGeneticSimulation(_parameters);            
         }
+
 
         /// <summary>
         /// Adds a species to the list, persists it to the underlying table.
@@ -158,10 +162,6 @@ namespace EnderPi.Framework.Simulation.Genetic
                 rngSpecies.Generation = _generation;
                 specimens.Add(rngSpecies);
             }
-            //write to the table, get the specimen ID.
-            //rngSpecies.SpecimenId = 
-
-            
         }
 
         private IComparer<RngSpecies> GetSpeciesComparer()
@@ -178,12 +178,22 @@ namespace EnderPi.Framework.Simulation.Genetic
 
         protected override void StartInternal(CancellationToken token, ServiceProvider provider, int backgroundTaskId, bool persistState)
         {
+            do
+            {
+                ++_iteration;
+                RunOneIteration(token, provider, backgroundTaskId, persistState);
+            } while (_iteration < _parameters.Iterations && !token.IsCancellationRequested);
+        }
+
+        private void RunOneIteration(CancellationToken token, ServiceProvider provider, int backgroundTaskId, bool persistState)
+        {
+            InitializeGeneration(token, provider, backgroundTaskId, persistState);
             bool converged = false;
             while (!token.IsCancellationRequested && !converged)
             {
                 _generation++;
                 _randomEngine.Seed(Engine.Crypto64());
-                
+
                 _specimensNextGeneration = new List<RngSpecies>();
                 _specimensNextGeneration.AddRange(EliteSpecimens(provider));
                 SelectAndBreed(provider);
@@ -196,15 +206,16 @@ namespace EnderPi.Framework.Simulation.Genetic
                 _specimens = _specimens.OrderByDescending(x => x, GetSpeciesComparer()).ToList();
                 double averageFitness = _specimens.Average(x => x.Fitness);
                 double medianFitness = _specimens[_specimens.Count / 2].Fitness;
-                
-                //write all to a table.
-                
-
                 converged = (Best.Generation + 10) < _generation;
                 OnGenerationFinished(provider);
                 //save if necessary
                 //report progress?
-            }            
+            }
+            if (converged)
+            {
+                IGeneticSpecimenDataAccess specimenDataAccess = provider.GetService<IGeneticSpecimenDataAccess>();
+                specimenDataAccess.MarkAsConverged(Best.SpecimenId);
+            }
         }
 
 
@@ -696,8 +707,7 @@ namespace EnderPi.Framework.Simulation.Genetic
 
         protected override void StoreFinalResults(ServiceProvider provider, int backgroundTaskId, bool persistState)
         {
-            IGeneticSpecimenDataAccess specimenDataAccess = provider.GetService<IGeneticSpecimenDataAccess>();
-            specimenDataAccess.MarkAsConverged(Best.SpecimenId);
+            
         }
     }
 }

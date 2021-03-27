@@ -96,46 +96,73 @@
                                     </td>
                                 </tr>
                             }
+                            <tr>
+                                <td>
+                                    <label style="padding-right:6px">Iterations:</label>
+                                </td>
+                                <td align="right" valign="top">
+                                    <InputNumber @bind-Value="@_model.Iterations"></InputNumber>
+                                </td>
+                            </tr>
                         </table>
-                        <div>
-                            <InputCheckbox @bind-Value="@_model.AllowAdditionNodes" id="allowAdditionNodes"></InputCheckbox><label style="padding-left:6px" for="allowAdditionNodes">Addition</label>
-                        </div>
-                        <div>
-                            <InputCheckbox @bind-Value="@_model.AllowSubtractionNodes" id="allowSubtractionNodes"></InputCheckbox><label style="padding-left:6px" for="allowSubtractionNodes">Subtraction</label>
-                        </div>
-                        <div>
-                            <InputCheckbox @bind-Value="@_model.AllowMultiplicationNodes" id="allowMultiplicationNodes"></InputCheckbox><label style="padding-left:6px" for="allowMultiplicationNodes">Multiplication</label>
-                        </div>
-                        <div>
-                            <InputCheckbox @bind-Value="@_model.AllowDivisionNodes" id="allowDivisionNodes"></InputCheckbox><label style="padding-left:6px" for="allowDivisionNodes">Division</label>
-                        </div>
-                        <div>
-                            <InputCheckbox @bind-Value="@_model.AllowRemainderNodes" id="allowRemainderNodes"></InputCheckbox><label style="padding-left:6px" for="allowRemainderNodes">Remainder</label>
-                        </div>
-                        <div>
-                            <InputCheckbox @bind-Value="@_model.AllowAndNodes" id="allowAndNodes"></InputCheckbox><label style="padding-left:6px" for="allowAndNodes">AND</label>
-                        </div>
-                        <div>
-                            <InputCheckbox @bind-Value="@_model.AllowOrNodes" id="allowOrNodes"></InputCheckbox><label style="padding-left:6px" for="allowOrNodes">OR</label>
-                        </div>
-                        <div>
-                            <InputCheckbox @bind-Value="@_model.AllowXorNodes" id="allowXorNodes"></InputCheckbox><label style="padding-left:6px" for="allowXorNodes">XOR</label>
-                        </div>
-                        <div>
-                            <InputCheckbox @bind-Value="@_model.AllowNotNodes" id="allowNotNodes"></InputCheckbox><label style="padding-left:6px" for="allowNotNodes">NOT</label>
-                        </div>
-                        <div>
-                            <InputCheckbox @bind-Value="@_model.AllowLeftShiftNodes" id="allowLeftShiftNodes"></InputCheckbox><label style="padding-left:6px" for="allowLeftShiftNodes">Left Shift</label>
-                        </div>
-                        <div>
-                            <InputCheckbox @bind-Value="@_model.AllowRightShiftNodes" id="allowRightShiftNodes"></InputCheckbox><label style="padding-left:6px" for="allowRightShiftNodes">Right Shift</label>
-                        </div>
-                        <div>
-                            <InputCheckbox @bind-Value="@_model.AllowRotateLeftNodes" id="allowRotateLeftNodes"></InputCheckbox><label style="padding-left:6px" for="allowRotateLeftNodes">Rotate Left</label>
-                        </div>
-                        <div>
-                            <InputCheckbox @bind-Value="@_model.AllowRotateRightNodes" id="allowRotateRightNodes"></InputCheckbox><label style="padding-left:6px" for="allowRotateRightNodes">Rotate Right</label>
-                        </div>
+                        <hr />
+                        <table style="table-layout:fixed" width="100%">
+                            <tr>
+                                <td width="50%">
+                                    <InputCheckbox @bind-Value="@_model.AllowAdditionNodes" id="allowAdditionNodes"></InputCheckbox><label style="padding-left:6px" for="allowAdditionNodes">Addition</label>
+                                </td>
+                                <td width="50%">
+                                    <InputCheckbox @bind-Value="@_model.AllowSubtractionNodes" id="allowSubtractionNodes"></InputCheckbox><label style="padding-left:6px" for="allowSubtractionNodes">Subtraction</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowMultiplicationNodes" id="allowMultiplicationNodes"></InputCheckbox><label style="padding-left:6px" for="allowMultiplicationNodes">Multiplication</label>
+                                </td>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowDivisionNodes" id="allowDivisionNodes"></InputCheckbox><label style="padding-left:6px" for="allowDivisionNodes">Division</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowRemainderNodes" id="allowRemainderNodes"></InputCheckbox><label style="padding-left:6px" for="allowRemainderNodes">Remainder</label>
+                                </td>
+                                <td>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowAndNodes" id="allowAndNodes"></InputCheckbox><label style="padding-left:6px" for="allowAndNodes">AND</label>
+                                </td>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowOrNodes" id="allowOrNodes"></InputCheckbox><label style="padding-left:6px" for="allowOrNodes">OR</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowXorNodes" id="allowXorNodes"></InputCheckbox><label style="padding-left:6px" for="allowXorNodes">XOR</label>
+                                </td>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowNotNodes" id="allowNotNodes"></InputCheckbox><label style="padding-left:6px" for="allowNotNodes">NOT</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowLeftShiftNodes" id="allowLeftShiftNodes"></InputCheckbox><label style="padding-left:6px" for="allowLeftShiftNodes">Left Shift</label>
+                                </td>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowRightShiftNodes" id="allowRightShiftNodes"></InputCheckbox><label style="padding-left:6px" for="allowRightShiftNodes">Right Shift</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowRotateLeftNodes" id="allowRotateLeftNodes"></InputCheckbox><label style="padding-left:6px" for="allowRotateLeftNodes">Rotate Left</label>
+                                </td>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowRotateRightNodes" id="allowRotateRightNodes"></InputCheckbox><label style="padding-left:6px" for="allowRotateRightNodes">Rotate Right</label>
+                                </td>
+                            </tr>
+                        </table>
                     </EditForm>
                     <div>
                         @if (_running)
@@ -151,6 +178,9 @@
                         <button class="btn btn-primary" @onclick="@(()=>HandleStopClick())">Stop</button>
                     </div>
                     <hr />
+                    <div>
+                        <label>Current Iteration: @_currentIteration</label>
+                    </div>
                     <div>
                         <label>Current Generation: @_currentGeneration</label>
                     </div>

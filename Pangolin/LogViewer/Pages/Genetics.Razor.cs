@@ -43,6 +43,8 @@ namespace GeneticWeb.Pages
 
         private string _currentGeneration;
 
+        private string _currentIteration;
+
         private CancellationTokenSource _source;
 
         private System.Timers.Timer _timer;
@@ -76,6 +78,7 @@ namespace GeneticWeb.Pages
             _model.AllowRightShiftNodes = true;
             _model.AllowRotateLeftNodes = true;
             _model.AllowRotateRightNodes = true;
+            _model.Iterations = 1;
         }
 
         public Genetics()
@@ -154,13 +157,12 @@ namespace GeneticWeb.Pages
             {
                 _model.ModeStateTwo = ConstraintMode.None;
             }
-            var parameters = _model.DeepCopy();            
-            var geneticTask = new GeneticRngBreeding(parameters);
+            var parameters = _model.DeepCopy();
+            GeneticRngBreeding geneticTask = null; 
             try
-            {
-                geneticTask.GenerationFinished += UpdateGeneration;
-
+            {               
                 _source = new CancellationTokenSource();
+                var token = _source.Token;
                 var provider = new ServiceProvider();
                 provider.RegisterService(configurationDataAccess);
                 provider.RegisterService(backgroundTaskManager);
@@ -168,9 +170,10 @@ namespace GeneticWeb.Pages
                 provider.RegisterService(speciesNameManager);
                 provider.RegisterService(geneticSimulationManager);
                 provider.RegisterService(geneticSpecimenManager);
-                geneticTask.Start(_source.Token, provider, 0, false);
+                geneticTask = new GeneticRngBreeding(parameters);
+                geneticTask.GenerationFinished += UpdateGeneration;
+                geneticTask.Start(token, provider, 0, false);
                 AssignSpecies(geneticTask.Best);
-                _currentGeneration = geneticTask.Generations.ToString("N0");
             }
             catch (Exception ex)
             {
@@ -183,7 +186,10 @@ namespace GeneticWeb.Pages
                 _source.Dispose();
                 _running = false;
                 InvokeAsync(() => StateHasChanged());
-                geneticTask.GenerationFinished -= UpdateGeneration;
+                if (geneticTask != null)
+                {
+                    geneticTask.GenerationFinished -= UpdateGeneration;
+                }
                 _timer.Enabled = false;
 
             }
@@ -211,6 +217,7 @@ namespace GeneticWeb.Pages
                         AssignSpecies(bestSpecimen);
                         _currentGeneration = e.Generation.ToString("N0");
                         _medianFitness = e.ThisGeneration[e.ThisGeneration.Count / 2].Fitness.ToString("N0");
+                        _currentIteration = e.Iteration.ToString();
                     }
                     InvokeAsync(() => StateHasChanged());
                 }
