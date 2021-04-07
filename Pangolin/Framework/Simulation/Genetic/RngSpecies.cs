@@ -275,43 +275,59 @@ namespace EnderPi.Framework.Simulation.Genetic
             return bitmap;
         }
 
-        internal bool IsValid()
+        internal bool IsValid(out string errors)
         {
+            StringBuilder sb = new StringBuilder();
             bool stateOneHasStateOne = _stateOneRoot.GetDescendants().Any(x => x is StateOneNode);
             bool stateOneHasStateTwo = _stateOneRoot.GetDescendants().Any(x => x is StateTwoNode);
             bool stateTwoHasStateOne = _stateTwoRoot.GetDescendants().Any(x => x is StateOneNode);
             bool stateTwoHasStateTwo = _stateTwoRoot.GetDescendants().Any(x => x is StateTwoNode);
             bool outputHasStateOne = _outputRoot.GetDescendants().Any(x => x is StateOneNode);
             bool outputHasStateTwo = _outputRoot.GetDescendants().Any(x => x is StateTwoNode);
+            bool seedOneHasSeed = _seedOneRoot.GetDescendants().Any(x => x is SeedNode);
+            bool seedTwoHasSeed = _seedTwoRoot.GetDescendants().Any(x => x is SeedNode);
             if (_useStateTwo)
             {
-                if (!outputHasStateOne || !outputHasStateTwo)
+                if (!outputHasStateOne && !outputHasStateTwo)
                 {
-                    return false;
+                    sb.AppendLine("Output lacks state one or state two.");                    
                 }                
                 //If it doesn't have state ONE and it doesn't have state two, that's bad.
                 if (!stateOneHasStateOne && !stateOneHasStateTwo)
                 {
-                    return false;
+                    sb.AppendLine("State one doesn't depend on state one or state two.");
                 }
                 if (!stateTwoHasStateOne && !stateTwoHasStateTwo)
                 {
-                    return false;
+                    sb.AppendLine("State two doesn't depend on state one or state two.");
                 }
-                //todo seed validation.
+                if (!seedOneHasSeed || !seedTwoHasSeed)
+                {
+                    sb.AppendLine("Seed tree doesn't depend on seed.");
+                }
+                
             }
             else
             {
                 if (!outputHasStateOne || outputHasStateTwo)
                 {
-                    return false;
+                    sb.AppendLine("Output lacks state one or has state two.");
                 }
                 if (!stateOneHasStateOne || stateOneHasStateTwo)
                 {
-                    return false;
+                    sb.AppendLine("State one doesn't depend on state one or does depend on state two.");
+                }
+                if (!seedOneHasSeed)
+                {
+                    sb.AppendLine("Seed tree doesn't depend on seed.");
                 }
             }
-            return true;
+            errors = sb.ToString();
+            if (string.IsNullOrWhiteSpace(errors))
+            {
+                return true;
+            }
+            return false;
         }
 
         public string GetImageStringSquished()
