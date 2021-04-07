@@ -157,7 +157,8 @@ namespace EnderPi.Framework.Simulation.Genetic
         /// <param name="rngSpecies"></param>
         private void AddSpecies(List<RngSpecies> specimens, RngSpecies rngSpecies)
         {
-            if (rngSpecies.IsValid())
+            string errors = null;
+            if (rngSpecies.IsValid(out errors))
             {
                 rngSpecies.Generation = _generation;
                 specimens.Add(rngSpecies);
@@ -232,8 +233,9 @@ namespace EnderPi.Framework.Simulation.Genetic
         {
             IConfigurationDataAccess configurationDataAccess = provider.GetService<IConfigurationDataAccess>();
             int specimensPerGeneration = configurationDataAccess.GetGlobalSettingInt(GlobalSettings.GeneticGenerationSize, 128);
-
-            while (_specimensNextGeneration.Count < specimensPerGeneration)
+            int maxTries = specimensPerGeneration * 10;
+            var logger = provider.GetService<Logger>();
+            while ((_specimensNextGeneration.Count < specimensPerGeneration) && (maxTries-- > 0))
             {
                 try
                 {
@@ -242,26 +244,33 @@ namespace EnderPi.Framework.Simulation.Genetic
                     List<RngSpecies> children = Crossover(dad, mom, provider);
                     MaybeMutate(provider, children);
                     FoldConstants(children, provider);
+                    string errors = null;
                     foreach (var child in children)
                     {
-                        if (child.IsValid())
+                        if (child.IsValid(out errors))
                         {
                             _specimensNextGeneration.Add(child);
                         }
                         else
                         {
-                            throw new Exception("Specimen failed validation!");
+                            LogDetails details = new LogDetails();
+                            details.AddDetail("Validation Errors", errors);
+                            logger.Log("Specimen failed validation!", LoggingLevel.Warning, details);
                         }
                     }
                 }
                 catch (Exception ex)
-                {
-                    var logger = provider.GetService<Logger>();
+                {                    
                     LogDetails details = new LogDetails();
                     details.AddDetail("Exception", ex.ToString());
                     logger.Log("Error breeding specimens!", LoggingLevel.Error, details);
                 }
-            }            
+            }
+            if (_specimensNextGeneration.Count < specimensPerGeneration)
+            {
+                logger.Log("Didn't fill generation!", LoggingLevel.Error);
+                //something 
+            }
         }
 
         /// <summary>
