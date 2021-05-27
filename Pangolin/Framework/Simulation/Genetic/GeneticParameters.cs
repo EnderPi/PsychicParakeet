@@ -45,5 +45,7 @@ namespace EnderPi.Framework.Simulation.Genetic
 
         public bool AllowXorNodes { set; get; }
 
+        public bool AllowRindjael { set; get; }
+
     }
 }

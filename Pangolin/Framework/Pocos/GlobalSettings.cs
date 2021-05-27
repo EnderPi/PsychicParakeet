@@ -16,5 +16,8 @@ namespace EnderPi.Framework.Pocos
         public static string GeneticMutationChance = "GeneticMutationChance";
         public static string GeneticXMenChance = "GeneticXMenChance";
         public static string GeneticGifSaveDirectory = "GeneticGifSaveDirectory";
+        public static string GeneticConvergedAgeConstant = "GeneticConvergedAgeConstant";
+        public static string GeneticMaxParallelism = "GeneticMaxParallelism";
+        public static string GeneticLinearProgramInitialSize = "GeneticLinearProgramInitialSize";
     }
 }

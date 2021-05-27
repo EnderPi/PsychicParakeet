@@ -26,7 +26,7 @@ namespace EnderPi.Framework.Simulation.RandomnessTest
             int[] complexity = new int[64];
             for (int i = 0; i < 64; i++)
             {
-                complexity[i] = BerlekampMassey(_bits[i]);
+                complexity[i] = TestHelper.BerlekampMassey(_bits[i]);
                 _results[i] = complexity[i] < (constant / 3) ? TestResult.Fail : TestResult.Pass; 
             }
             _result = TestHelper.ReturnLowestConclusiveResult(_results);
@@ -62,42 +62,7 @@ namespace EnderPi.Framework.Simulation.RandomnessTest
         {
             
         }
-
-        private static int BerlekampMassey(byte[] s)
-        {
-            int L, N, m, d;
-            int n = s.Length;
-            byte[] c = new byte[n];
-            byte[] b = new byte[n];
-            byte[] t = new byte[n];
-
-            //Initialization
-            b[0] = c[0] = 1;
-            N = L = 0;
-            m = -1;
-
-            //Algorithm core
-            while (N < n)
-            {
-                d = s[N];
-                for (int i = 1; i <= L; i++)
-                    d ^= c[i] & s[N - i];            //(d+=c[i]*s[N-i] mod 2)
-                if (d == 1)
-                {
-                    Array.Copy(c, t, n);    //T(D)<-C(D)
-                    for (int i = 0; (i + N - m) < n; i++)
-                        c[i + N - m] ^= b[i];
-                    if (L <= (N >> 1))
-                    {
-                        L = N + 1 - L;
-                        m = N;
-                        Array.Copy(t, b, n);    //B(D)<-T(D)
-                    }
-                }
-                N++;
-            }
-            return L;
-        }
+        
 
 
     }

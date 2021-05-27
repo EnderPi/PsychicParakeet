@@ -21,7 +21,34 @@
         <tr>
             <td>End Date:</td>
             <td><input type="datetime" @bind="SearchModel.EndTime" /></td>
-        </tr>                
+        </tr>
+        <tr>
+            <td>Message contains:</td>
+            <td><InputText @bind-Value="SearchModel.Message" /></td>
+        </tr>
+        <tr>
+            <td>
+                <InputCheckbox @bind-Value="@SearchModel.ShowDebug" id="showDebug"></InputCheckbox><label style="padding-left:6px" for="showDebug">Debug</label>
+            </td>
+            <td>
+                <InputCheckbox @bind-Value="@SearchModel.ShowInformation" id="showInformation"></InputCheckbox><label style="padding-left:6px" for="showInformation">Information</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <InputCheckbox @bind-Value="@SearchModel.ShowWarning" id="showWarning"></InputCheckbox><label style="padding-left:6px" for="showWarning">Warning</label>
+            </td>
+            <td>
+                <InputCheckbox @bind-Value="@SearchModel.ShowError" id="showError"></InputCheckbox><label style="padding-left:6px" for="showError">Error</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <InputCheckbox @bind-Value="@SearchModel.ShowFatal" id="showFatal"></InputCheckbox><label style="padding-left:6px" for="showFatal">Fatal</label>
+            </td>
+            <td>
+            </td>
+        </tr>
     </table>
 </EditForm>
 <p>
@@ -88,7 +115,7 @@
 
 @code {
 
-    private GeneticWeb.Models.LogSearchModel SearchModel = new Models.LogSearchModel() { BeginTime = DateTime.Now, EndTime = DateTime.Now };
+    private EnderPi.Framework.Logging.LogSearchModel SearchModel = new EnderPi.Framework.Logging.LogSearchModel() { BeginTime = DateTime.MinValue, EndTime = DateTime.MinValue, ShowError=true, ShowFatal=true };
 
     private int currentCount = 0;
 
@@ -125,7 +152,7 @@
     public void SearchLogs()
     {
         //TODO validation
-        logMessages = logDataAccess.SearchLogMessages(SearchModel.Source, SearchModel.BeginTime, SearchModel.EndTime);
+        logMessages = logDataAccess.SearchLogMessages(SearchModel);
     }
 
 }

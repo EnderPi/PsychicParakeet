@@ -78,6 +78,7 @@ namespace GeneticWeb.Pages
             _model.AllowRightShiftNodes = true;
             _model.AllowRotateLeftNodes = true;
             _model.AllowRotateRightNodes = true;
+            _model.AllowRindjael = false;
             _model.Iterations = 1;
         }
 
@@ -153,7 +154,7 @@ namespace GeneticWeb.Pages
 
         public void BackgroundTaskDelegate()
         {
-            if (_model.UseStateTwo)
+            if (!_model.UseStateTwo)
             {
                 _model.ModeStateTwo = ConstraintMode.None;
             }

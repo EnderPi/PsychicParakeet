@@ -125,6 +125,12 @@
     <Build Include="GeneticRng\GetGeneticSimulation.sql" />
     <Build Include="GeneticRng\CreateRngSpecimen.sql" />
     <Build Include="GeneticRng\MarkSpecimenConverged.sql" />
+    <Build Include="GeneticRng\LinearRngSpecimens.sql" />
+    <Build Include="GeneticRng\CreateLinearRngSpecimen.sql" />
+    <Build Include="GeneticRng\MarkLinearSpecimenConverged.sql" />
+    <Build Include="Simulations\MultiplyRotateLeft32.sql" />
+    <Build Include="Simulations\InsertMultiplyRotate.sql" />
+    <Build Include="Simulations\MultiplyRotate32Exists.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

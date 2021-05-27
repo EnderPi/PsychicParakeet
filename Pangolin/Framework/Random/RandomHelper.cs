@@ -14,6 +14,11 @@ namespace EnderPi.Framework.Random
             return (x << k) | (x >> (64 - k));
         }
 
+        public static uint RotateLeft(uint x, int k)
+        {
+            return (x << k) | (x >> (32 - k));
+        }
+
         /// <summary>
         /// Converts the given byte array into an array of UInt64s, one-eighth the length.
         /// Used to convert hashes into UInt64s.

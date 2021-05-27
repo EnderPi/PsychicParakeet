@@ -131,6 +131,14 @@ namespace EnderPi.Framework.Simulation
                     _targetNumberOfIterations = Convert.ToInt64(1e12);
                     _description = $"Level 5 Test, Engine: {_randomEngine}, Seed: {_seed}";
                     break;
+                case TestLevel.Six:
+                    _tests.Add(new GcdRotatedTest());
+                    _tests.Add(new GorillaTest(8));
+                    _tests.Add(new ZeroTest());
+                    _tests.Add(new BitwiseLinear());
+                    _targetNumberOfIterations = Convert.ToInt64(11000);
+                    _description = $"Level 6 Test, Engine: {_randomEngine}, Seed: {_seed}";
+                    break;
             }
         }
 

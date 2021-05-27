@@ -33,7 +33,7 @@ namespace UnitTest.Framework.Simulation.Genetic
         }
 
         /// <summary>
-        /// Creates an LCG from an RNG species, verifies it matches the LCG built normally.
+        /// Creates a XorShift from an RNG species, verifies it matches the XorShift built normally.
         /// </summary>
         [Test]
         public void TestXorShift()

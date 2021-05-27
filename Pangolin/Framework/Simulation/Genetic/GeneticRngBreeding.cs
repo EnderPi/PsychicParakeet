@@ -11,6 +11,7 @@ using System.Threading;
 using System.Runtime.Serialization;
 using EnderPi.Framework.Simulation.Genetic.Nodes;
 using EnderPi.Framework.Logging;
+using System.Threading.Tasks;
 
 namespace EnderPi.Framework.Simulation.Genetic
 {
@@ -192,6 +193,7 @@ namespace EnderPi.Framework.Simulation.Genetic
             bool converged = false;
             while (!token.IsCancellationRequested && !converged)
             {
+                IConfigurationDataAccess configurationDataAccess = provider.GetService<IConfigurationDataAccess>();
                 _generation++;
                 _randomEngine.Seed(Engine.Crypto64());
 
@@ -199,15 +201,19 @@ namespace EnderPi.Framework.Simulation.Genetic
                 _specimensNextGeneration.AddRange(EliteSpecimens(provider));
                 SelectAndBreed(provider);
                 _specimens = _specimensNextGeneration;  //replacing....
-                foreach (var specimen in _specimens)
-                {
-                    EvaluateFitness(specimen, token, provider, backgroundTaskId);
-                    if (token.IsCancellationRequested) break;
-                }
+                ParallelOptions options = new ParallelOptions();
+                options.MaxDegreeOfParallelism = configurationDataAccess.GetGlobalSettingInt(GlobalSettings.GeneticMaxParallelism,4);
+                options.CancellationToken = token;
+                Parallel.ForEach(_specimens, options, x => EvaluateFitness(x, token, provider, backgroundTaskId));
+                
                 _specimens = _specimens.OrderByDescending(x => x, GetSpeciesComparer()).ToList();
                 double averageFitness = _specimens.Average(x => x.Fitness);
                 double medianFitness = _specimens[_specimens.Count / 2].Fitness;
-                converged = (Best.Generation + 10) < _generation;
+
+                
+                int convergedConstant = configurationDataAccess.GetGlobalSettingInt(GlobalSettings.GeneticConvergedAgeConstant, 10);
+
+                converged = (Best.Generation + convergedConstant) < _generation;
                 OnGenerationFinished(provider);
                 //save if necessary
                 //report progress?
@@ -255,7 +261,7 @@ namespace EnderPi.Framework.Simulation.Genetic
                         {
                             LogDetails details = new LogDetails();
                             details.AddDetail("Validation Errors", errors);
-                            logger.Log("Specimen failed validation!", LoggingLevel.Warning, details);
+                            logger.Log("Specimen failed validation!", LoggingLevel.Debug, details);
                         }
                     }
                 }
@@ -394,9 +400,7 @@ namespace EnderPi.Framework.Simulation.Genetic
             //if it's a constant, change the constant, or change the constant to a state.
             //if it's a state node, change it to the other state, or change it to a constant if that doesn't invalidate the parent.
             //if it's a binary node, flip the type.
-
-
-            //TODO haven't implemented flipping binary nodes yet.
+                                    
             var descendants = treeToMutateRoot.GetDescendants().ToList();
             var nodeToMutate = _randomEngine.GetRandomElement(descendants);
             if (nodeToMutate is ConstantNode constantNode)
@@ -555,7 +559,10 @@ namespace EnderPi.Framework.Simulation.Genetic
             {
                 possibleNodes.Add(_randomEngine.PickRandomElement(new RemainderNode(randomLeaf, secondNode), new RemainderNode(secondNode, randomLeaf)));
             }
-            //possibleNodes.Add(new RindjaelNode(randomLeaf));
+            if (_parameters.AllowRindjael)
+            {
+                possibleNodes.Add(new RindjaelNode(randomLeaf));
+            }
             TreeNode result = _randomEngine.GetRandomElement(possibleNodes);
             result.GenerationOfOrigin = _generation;
             return result;                      

@@ -1,6 +1,24 @@
 ﻿@page "/"
 
+@inject EnderPi.Framework.Logging.Logger logger;
+@inject EnderPi.Framework.DataAccess.IMultiplyRotateDataAccess multiplyRotateDataAccess;
+
+
 <h1>Welcome to the Genetic Programming for RNGs!</h1>
 
 
 <div>This application provides the means to breed random number generators.</div>
+<div>
+    @if (_running)
+                        {
+    <button class="btn btn-primary">Running....</button>
+                        }
+                        else
+                        {
+    <button class="btn btn-primary" @onclick="@(()=>HandleStartClick())">Start</button>
+                        }
+</div>
+<div style="padding-top:5px">
+    <button class="btn btn-primary" @onclick="@(()=>HandleStopClick())">Stop</button>
+</div>
+

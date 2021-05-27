@@ -1,0 +1,248 @@
+﻿@using EnderPi.Framework.Simulation.Genetic;
+@using System.Threading;
+@using EnderPi.Framework.Services;
+@using EnderPi.Framework.DataAccess;
+@using EnderPi.Framework.BackgroundWorker;
+@using EnderPi.Framework.Threading;
+@using GeneticWeb.Models;
+@using System.IO;
+@using System.Drawing.Imaging;
+@using EnderPi.Framework.Logging;
+@using System.Timers;
+@using EnderPi.Framework.Simulation.LinearGenetic; 
+
+@page "/lineargenetics"
+@attribute [Authorize]
+@inject IConfigurationDataAccess configurationDataAccess;
+@inject EnderPi.Framework.BackgroundWorker.IBackgroundTaskManager backgroundTaskManager;
+@inject EnderPi.Framework.Logging.Logger logger;
+@inject EnderPi.Framework.DataAccess.ISpeciesNameDataAccess speciesNameManager;
+@inject EnderPi.Framework.DataAccess.IGeneticSimulationDataAccess geneticSimulationManager;
+@inject EnderPi.Framework.DataAccess.ILinearGeneticDataAccess geneticSpecimenManager;
+
+
+<h3>Genetic Programming for Random Number Generators</h3>
+
+<div>
+    <div>
+        <br />
+        <table>
+            <tr>
+                <td width="300" valign="top">
+                    <EditForm Model="_model">
+                        <table>
+                            <tr>
+                                <td>
+                                    <label style="padding-right:6px">Test Level:</label>
+                                </td>
+                                <td align="right" valign="top">
+                                    <InputSelect @bind-Value="@_model.Level" TValue=EnderPi.Framework.Simulation.RandomnessTest.TestLevel>
+                                        @foreach (var level in Enum.GetValues(typeof(EnderPi.Framework.Simulation.RandomnessTest.TestLevel)))
+                                        {
+                                            @if ((EnderPi.Framework.Simulation.RandomnessTest.TestLevel)level != EnderPi.Framework.Simulation.RandomnessTest.TestLevel.Adhoc)
+                                            {
+                                                <option value="@level">@level</option>
+                                            }
+                                        }
+                                    </InputSelect>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label style="padding-right:6px">Cost Mode:</label>
+                                </td>
+                                <td align="right" valign="top">
+                                    <InputSelect @bind-Value="@_model.CostMode" TValue=EnderPi.Framework.Simulation.Genetic.GeneticCostMode>
+                                        @foreach (var mode in Enum.GetValues(typeof(EnderPi.Framework.Simulation.Genetic.GeneticCostMode)))
+                                        {
+                                            <option value="@mode">@mode</option>
+                                        }
+                                    </InputSelect>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label style="padding-right:6px;vertical-align:top">Mode State One:</label>
+                                </td>
+                                <td align="right" valign="top">
+                                    <InputSelect @bind-Value="@_model.ModeStateOne" TValue=EnderPi.Framework.Simulation.Genetic.ConstraintMode>
+                                        @foreach (var mode in Enum.GetValues(typeof(EnderPi.Framework.Simulation.Genetic.ConstraintMode)))
+                                        {
+                                            <option value="@mode">@mode</option>
+                                        }
+                                    </InputSelect>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="right" valign="top">
+                                    <InputCheckbox @bind-Value="@_model.UseStateTwo" id="useStateTwo"></InputCheckbox>
+                                </td>
+                                <td>
+                                    <label style="padding-left:6px" for="useStateTwo">Use State Two</label>
+                                </td>
+                            </tr>
+                            @if (_model.UseStateTwo)
+                            {
+                                <tr>
+                                    <td>
+                                        <label style="padding-right:6px">Mode State Two:</label>
+                                    </td>
+                                    <td align="right" valign="top">
+                                        <InputSelect @bind-Value="@_model.ModeStateTwo" TValue=EnderPi.Framework.Simulation.Genetic.ConstraintMode>
+                                            @foreach (var mode in Enum.GetValues(typeof(EnderPi.Framework.Simulation.Genetic.ConstraintMode)))
+                                            {
+                                                <option value="@mode">@mode</option>
+                                            }
+                                        </InputSelect>
+                                    </td>
+                                </tr>
+                            }
+                            <tr>
+                                <td>
+                                    <label style="padding-right:6px">Iterations:</label>
+                                </td>
+                                <td align="right" valign="top">
+                                    <InputNumber @bind-Value="@_model.Iterations"></InputNumber>
+                                </td>
+                            </tr>
+                        </table>
+                        <hr />
+                        <table style="table-layout:fixed" width="100%">
+                            <tr>
+                                <td width="50%">
+                                    <InputCheckbox @bind-Value="@_model.AllowAdditionNodes" id="allowAdditionNodes"></InputCheckbox><label style="padding-left:6px" for="allowAdditionNodes">Addition</label>
+                                </td>
+                                <td width="50%">
+                                    <InputCheckbox @bind-Value="@_model.AllowSubtractionNodes" id="allowSubtractionNodes"></InputCheckbox><label style="padding-left:6px" for="allowSubtractionNodes">Subtraction</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowMultiplicationNodes" id="allowMultiplicationNodes"></InputCheckbox><label style="padding-left:6px" for="allowMultiplicationNodes">Multiplication</label>
+                                </td>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowDivisionNodes" id="allowDivisionNodes"></InputCheckbox><label style="padding-left:6px" for="allowDivisionNodes">Division</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowRemainderNodes" id="allowRemainderNodes"></InputCheckbox><label style="padding-left:6px" for="allowRemainderNodes">Remainder</label>
+                                </td>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowRindjael" id="allowRindjael"></InputCheckbox><label style="padding-left:6px" for="allowRindjael">Rindjael</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowAndNodes" id="allowAndNodes"></InputCheckbox><label style="padding-left:6px" for="allowAndNodes">AND</label>
+                                </td>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowOrNodes" id="allowOrNodes"></InputCheckbox><label style="padding-left:6px" for="allowOrNodes">OR</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowXorNodes" id="allowXorNodes"></InputCheckbox><label style="padding-left:6px" for="allowXorNodes">XOR</label>
+                                </td>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowNotNodes" id="allowNotNodes"></InputCheckbox><label style="padding-left:6px" for="allowNotNodes">NOT</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowLeftShiftNodes" id="allowLeftShiftNodes"></InputCheckbox><label style="padding-left:6px" for="allowLeftShiftNodes">Left Shift</label>
+                                </td>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowRightShiftNodes" id="allowRightShiftNodes"></InputCheckbox><label style="padding-left:6px" for="allowRightShiftNodes">Right Shift</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowRotateLeftNodes" id="allowRotateLeftNodes"></InputCheckbox><label style="padding-left:6px" for="allowRotateLeftNodes">Rotate Left</label>
+                                </td>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.AllowRotateRightNodes" id="allowRotateRightNodes"></InputCheckbox><label style="padding-left:6px" for="allowRotateRightNodes">Rotate Right</label>
+                                </td>
+                            </tr>
+                        </table>
+                    </EditForm>
+                    <div>
+                        @if (_running)
+                        {
+                            <button class="btn btn-primary">Running....</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="@(()=>HandleStartClick())">Start</button>
+                        }
+                    </div>
+                    <div style="padding-top:5px">
+                        <button class="btn btn-primary" @onclick="@(()=>HandleStopClick())">Stop</button>
+                    </div>
+                    <hr />
+                    <div>
+                        <label>Current Iteration: @_currentIteration</label>
+                    </div>
+                    <div>
+                        <label>Current Generation: @_currentGeneration</label>
+                    </div>
+                    <div>
+                        <label>Median Fitness: @_medianFitness</label>
+                    </div>
+                </td>
+                <td>
+                    <table class="table" style="table-layout:fixed">
+                        @if (_bestSpecies != null && _randomSpecies != null)
+                        {
+                            <tr>
+                                <td>Specimen</td>
+                                <td>@_bestSpecies.Name (Current Best)</td>
+                                <td>@_randomSpecies.Name (Random Pick)</td>
+                            </tr>
+                            <tr>
+                                <td>Fitness / Test Passed</td>
+                                <td>@_bestSpecies.Fitness.ToString("N0")  /  @_bestSpecies.TestsPassed</td>
+                                <td>@_randomSpecies.Fitness.ToString("N0")  /  @_randomSpecies.TestsPassed</td>
+                            </tr>
+
+                            <tr>
+                                <td>Program Length</td>
+                                <td>@_bestSpecies.ProgramLength</td>
+                                <td>@_randomSpecies.ProgramLength</td>
+                            </tr>
+
+                            <tr>
+                                <td>Birth Generation</td>
+                                <td>@_bestSpecies.Generation</td>
+                                <td>@_randomSpecies.Generation</td>
+                            </tr>
+                            <tr>
+                                <td>Randomness Visual</td>
+                                <td>
+                                    <img id="scatterPlot" src=@_bestSpecies.ImageString width="256" />
+                                </td>
+                                <td>
+                                    <img id="outputGraph" src=@_randomSpecies.ImageString width="256" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Generation Program</td>
+                                <td>
+                                    <table>
+                                        @foreach (var command in _bestSpecies.GenerationProgram)
+                                        {
+                                            <tr><td>@command.ToString()</td></tr>
+                                        }
+                                    </table>
+                                </td>
+                                <td>@LinearGeneticHelper.PrintProgram(_randomSpecies.GenerationProgram)</td>
+                            </tr>
+
+                        }
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+

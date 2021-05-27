@@ -2,9 +2,11 @@
 using EnderPi.Framework.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 
 namespace EnderPi.Framework.DataAccess
 {
@@ -134,21 +136,85 @@ namespace EnderPi.Framework.DataAccess
             return details;
         }
 
-        public LogMessage[] SearchLogMessages(string source, DateTime beginTime, DateTime endTime)
+        public LogMessage[] SearchLogMessages(LogSearchModel searchModel)
         {
             using (var sqlConnection = new SqlConnection(_connectionString))
             {
-                using (var command = new SqlCommand("[Logging].[SearchLogs]", sqlConnection))
+                using (var command = new SqlCommand(CreateSearchQuery(searchModel), sqlConnection))
                 {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.Add("@Source", SqlDbType.VarChar, 100).Value = source;
-                    command.Parameters.Add("@BeginTime", SqlDbType.DateTime).Value = beginTime;
-                    command.Parameters.Add("@EndTime", SqlDbType.DateTime).Value = endTime;
+                    command.CommandType = CommandType.Text;
                     sqlConnection.Open();
                     return ReadLogMessages(command).ToArray();
                 }
             }
         }
 
+        private string CreateSearchQuery(LogSearchModel model)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT TOP (25) [Id], [Source], [TimeStamp], [LogLevel], [Message] FROM [Logging].[Log] WITH (NOLOCK) ");
+
+            string whereString = BuildWhereClaus(model);
+            
+            if (!string.IsNullOrWhiteSpace(whereString))
+            {
+                sb.Append("WHERE ");
+                sb.Append(whereString);
+            }
+            sb.Append(" ORDER BY [Id] DESC");
+            return sb.ToString();
+        }
+
+        private string BuildWhereClaus(LogSearchModel model)
+        {
+            string whereClause = null;
+            List<string> whereParts = new List<string>();
+            if (!string.IsNullOrWhiteSpace(model.Source))
+            {
+                whereParts.Add($"[Source]='{model.Source}'");
+            }
+            if (model.BeginTime != DateTime.MinValue && model.EndTime != DateTime.MinValue)
+            {
+                whereParts.Add($"[TimeStamp] BETWEEN '{SqlHelper.ToSqlDateTimeString(model.BeginTime)}' AND '{SqlHelper.ToSqlDateTimeString(model.EndTime)}'");
+            }
+            if (!string.IsNullOrWhiteSpace(model.Message))
+            {
+                whereParts.Add($"[Message] LIKE '%{model.Message}%'");
+            }
+            LoggingLevel loggingLevel = GetLoggingLevel(model);
+            whereParts.Add($"[LogLevel] & {(int)loggingLevel} != 0");
+            if (whereParts.Count > 0)
+            {
+                whereClause = string.Join(" AND ", whereParts);
+            }
+            return whereClause;
+        }
+
+        private static LoggingLevel GetLoggingLevel(LogSearchModel model)
+        {
+            LoggingLevel loggingLevel = LoggingLevel.None;
+            if (model.ShowDebug)
+            {
+                loggingLevel |= LoggingLevel.Debug;
+            }
+            if (model.ShowInformation)
+            {
+                loggingLevel |= LoggingLevel.Information;
+            }
+            if (model.ShowWarning)
+            {
+                loggingLevel |= LoggingLevel.Warning;
+            }
+            if (model.ShowError)
+            {
+                loggingLevel |= LoggingLevel.Error;
+            }
+            if (model.ShowFatal)
+            {
+                loggingLevel |= LoggingLevel.Fatal;
+            }
+
+            return loggingLevel;
+        }
     }
 }

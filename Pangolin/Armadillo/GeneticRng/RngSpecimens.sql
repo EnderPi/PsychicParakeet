@@ -19,3 +19,7 @@
 	[SeedOneExpressionPretty] VARCHAR(MAX) NULL,
 	[SeedTwoExpressionPretty] VARCHAR(MAX) NULL
 )
+
+GO
+
+CREATE INDEX [IX_RngSpecimens_Converged] ON [GeneticRng].[RngSpecimens] ([GeneticSimulationId] ASC) WHERE ([Converged]=(1))

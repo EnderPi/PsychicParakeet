@@ -152,27 +152,34 @@ namespace EnderPi.Framework.Simulation.Genetic
                     _stateOneRoot = new IntronNode(new AdditionNode(new StateOneNode(), new ConstantNode(2048534558598693729)));
                     break;
             }
-            switch (modeTwo)
+            if (useStateTwo)
             {
-                case ConstraintMode.None:
-                    _stateTwoRoot = new IntronNode(new AdditionNode(new StateOneNode(), new StateTwoNode()));
-                    break;
-                case ConstraintMode.StateInc:
-                    _stateTwoRoot = new IntronNode(new AdditionNode(new StateTwoNode(), new ConstantNode(1)));
-                    break;
-                case ConstraintMode.StateLcg:
-                    _stateTwoRoot = new IntronNode(new AdditionNode(new MultiplicationNode(new StateTwoNode(), new ConstantNode(3935559000370003845)), new ConstantNode(2691343689449507681))); new IntronNode(new AdditionNode(new ConstantNode(1), new StateTwoNode()));
-                    break;
-                case ConstraintMode.StateXor:
-                    TreeNode leftshift2 = new LeftShiftNode(new StateTwoNode(), new ConstantNode(13));
-                    TreeNode firstXorNode2 = new XorNode(new StateTwoNode(), leftshift2);
-                    TreeNode secondXorNode2 = new XorNode(firstXorNode2, new RightShiftNode(firstXorNode2, new ConstantNode(7)));
-                    TreeNode thirdXorNode2 = new XorNode(secondXorNode2, new LeftShiftNode(secondXorNode2, new ConstantNode(17)));
-                    _stateTwoRoot = new IntronNode(thirdXorNode2);
-                    break;
-                case ConstraintMode.StateWeyl:
-                    _stateTwoRoot = new IntronNode(new AdditionNode(new StateTwoNode(), new ConstantNode(2048534558598693729)));
-                    break;
+                switch (modeTwo)
+                {
+                    case ConstraintMode.None:
+                        _stateTwoRoot = new IntronNode(new AdditionNode(new StateOneNode(), new StateTwoNode()));
+                        break;
+                    case ConstraintMode.StateInc:
+                        _stateTwoRoot = new IntronNode(new AdditionNode(new StateTwoNode(), new ConstantNode(1)));
+                        break;
+                    case ConstraintMode.StateLcg:
+                        _stateTwoRoot = new IntronNode(new AdditionNode(new MultiplicationNode(new StateTwoNode(), new ConstantNode(3935559000370003845)), new ConstantNode(2691343689449507681))); new IntronNode(new AdditionNode(new ConstantNode(1), new StateTwoNode()));
+                        break;
+                    case ConstraintMode.StateXor:
+                        TreeNode leftshift2 = new LeftShiftNode(new StateTwoNode(), new ConstantNode(13));
+                        TreeNode firstXorNode2 = new XorNode(new StateTwoNode(), leftshift2);
+                        TreeNode secondXorNode2 = new XorNode(firstXorNode2, new RightShiftNode(firstXorNode2, new ConstantNode(7)));
+                        TreeNode thirdXorNode2 = new XorNode(secondXorNode2, new LeftShiftNode(secondXorNode2, new ConstantNode(17)));
+                        _stateTwoRoot = new IntronNode(thirdXorNode2);
+                        break;
+                    case ConstraintMode.StateWeyl:
+                        _stateTwoRoot = new IntronNode(new AdditionNode(new StateTwoNode(), new ConstantNode(2048534558598693729)));
+                        break;
+                }
+            }
+            else
+            {
+                _stateTwoRoot = new IntronNode(new StateTwoNode());
             }
 
             if (useStateTwo)

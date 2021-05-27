@@ -10,7 +10,7 @@ namespace EnderPi.Framework.Interfaces
 
         public LogDetails GetLogDetails(long Id);
 
-        public LogMessage[] SearchLogMessages(string source, DateTime beginTime, DateTime endTime);
+        public LogMessage[] SearchLogMessages(LogSearchModel searchModel);
 
     }
 }

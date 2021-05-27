@@ -64,8 +64,12 @@ namespace GeneticWeb
 
             IGeneticSpecimenDataAccess speciesDataAccess = new GeneticSpecimenDataAccess(connectionString);
             IGeneticSimulationDataAccess geneticsimulationDataAccess = new GeneticSimulationDataAccess(connectionString);
+            ILinearGeneticDataAccess linearGeneticDataAccess = new LinearGeneticDataAccess(connectionString);
+            IMultiplyRotateDataAccess multiplyRotateDataAccess = new MultiplyRotateDataAccess(connectionString);
 
+            services.AddSingleton(multiplyRotateDataAccess);
             services.AddSingleton(speciesDataAccess);
+            services.AddSingleton(linearGeneticDataAccess);
             services.AddSingleton(geneticsimulationDataAccess);
             services.AddSingleton(logDataAccess);
             services.AddSingleton(myLogger);
