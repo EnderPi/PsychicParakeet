@@ -23,15 +23,25 @@ namespace EnderPi.Framework.Simulation
         {
             var engine = new Sha256();
             IMultiplyRotateDataAccess dataAccess = provider.GetService<IMultiplyRotateDataAccess>();
-
+            uint multiplier = (uint.MaxValue / 10) | 1;
             while (!token.IsCancellationRequested)
             {
-                uint multiplier = engine.Next32() | 1;
-                int rotate = engine.NextInt(1, 31);
-                if (!dataAccess.RowExists(multiplier, rotate))
+                multiplier = engine.Next32() | 1;
+                while (multiplier % 4 != 1)
                 {
-                    dataAccess.InsertResult(GetResults(token, multiplier, rotate));
-                }
+                    multiplier += 2;
+                }                
+                for (int rotate = 1; rotate < 17; rotate++)
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                    if (!dataAccess.RowExists(multiplier, rotate))
+                    {
+                        dataAccess.InsertResult(GetResults(token, multiplier, rotate));
+                    }
+                }                
             }            
         }
 
@@ -40,15 +50,16 @@ namespace EnderPi.Framework.Simulation
             uint state = 1;
             uint period = 0;
             var _bits = new List<List<byte>>();
+            int size = 10000;
             for (int i = 0; i < 32; i++)
             {
-                _bits.Add(new List<byte>(10000));
+                _bits.Add(new List<byte>(size));
             }
 
             var linearity = new int[32];
             do
             {
-                if (period < 10000)
+                if (period < size)
                 {
                     for (int i = 0; i < 32; i++)
                     {

@@ -12,6 +12,7 @@ using System.Runtime.Serialization;
 using EnderPi.Framework.Simulation.Genetic.Nodes;
 using EnderPi.Framework.Logging;
 using System.Threading.Tasks;
+using EnderPi.Framework.Simulation.RandomnessTest;
 
 namespace EnderPi.Framework.Simulation.Genetic
 {
@@ -112,7 +113,7 @@ namespace EnderPi.Framework.Simulation.Genetic
         /// <param name="persistState"></param>
         protected override void InitializeInternal(CancellationToken token, ServiceProvider provider, int backgroundTaskId, bool persistState)
         {
-            _randomEngine = new Sha256();
+            _randomEngine = new ThreadsafeEngine(new Sha256());
             var geneticSimulationDataAccess = provider.GetService<IGeneticSimulationDataAccess>();
             _simulationId = geneticSimulationDataAccess.CreateGeneticSimulation(_parameters);
             _iteration = 0;
@@ -171,7 +172,14 @@ namespace EnderPi.Framework.Simulation.Genetic
             switch (_parameters.CostMode)
             {
                 case GeneticCostMode.FewerOperations:
-                    return new SpeciesComparerNodes();
+                    if (_parameters.IncludeAvalanche)
+                    {
+                        return new SpeciesComparerNodesAvalanche();
+                    }
+                    else
+                    {
+                        return new SpeciesComparerNodes();
+                    }
                 case GeneticCostMode.Faster:
                     return new SpeciesComparerCost();
             }
@@ -695,6 +703,10 @@ namespace EnderPi.Framework.Simulation.Genetic
                 randomTest.Start(token, provider, backgroundTaskId, false);
                 specimen.Fitness = randomTest.Iterations;
                 specimen.TestsPassed = randomTest.TestsPassed;
+                //if (_parameters.IncludeAvalanche)
+                //{
+                    specimen.AvalancheResults = AvalancheCalculator.GetAvalanche(_randomEngine, specimen.GetAvalancheFunction(), 1000);
+                //}
                 specimen.NameConstants();
                 IGeneticSpecimenDataAccess specimenDataAccess = provider.GetService<IGeneticSpecimenDataAccess>();
                 specimen.SpecimenId = specimenDataAccess.CreateSpecimen(specimen, _simulationId);                

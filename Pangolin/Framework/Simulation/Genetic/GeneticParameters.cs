@@ -47,5 +47,9 @@ namespace EnderPi.Framework.Simulation.Genetic
 
         public bool AllowRindjael { set; get; }
 
+        public bool IncludeAvalanche { set; get; }
+
+        public int FeistelRounds { set; get; }
+
     }
 }

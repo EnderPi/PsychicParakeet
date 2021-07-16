@@ -163,6 +163,14 @@
                                     <InputCheckbox @bind-Value="@_model.AllowRotateRightNodes" id="allowRotateRightNodes"></InputCheckbox><label style="padding-left:6px" for="allowRotateRightNodes">Rotate Right</label>
                                 </td>
                             </tr>
+                            <tr>
+                                <td>
+                                    <InputCheckbox @bind-Value="@_model.IncludeAvalanche" id="includeAvalanche"></InputCheckbox><label style="padding-left:6px" for="includeAvalanche">Avalanche</label>
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
                         </table>
                     </EditForm>
                     <div>
@@ -203,7 +211,11 @@
                                 <td>@_bestSpecies.Fitness.ToString("N0")  /  @_bestSpecies.TestsPassed</td>
                                 <td>@_randomSpecies.Fitness.ToString("N0")  /  @_randomSpecies.TestsPassed</td>
                             </tr>
-
+                            <tr>
+                                <td>Avalanche / Range</td>
+                                <td>@_bestSpecies.AvalancheResults.Avalanche.ToString("N2")  /  @_bestSpecies.AvalancheResults.AvalancheRange.ToString("N2")</td>
+                                <td>@_randomSpecies.AvalancheResults.Avalanche.ToString("N2")  /  @_randomSpecies.AvalancheResults.AvalancheRange.ToString("N2")</td>
+                            </tr>
                             <tr>
                                 <td>Node Count / Cost</td>
                                 <td>@_bestSpecies.NodeCount  /  @_bestSpecies.TotalCost.ToString("F1")</td>

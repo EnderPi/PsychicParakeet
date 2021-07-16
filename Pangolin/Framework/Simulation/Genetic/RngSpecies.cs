@@ -1,4 +1,5 @@
 ﻿using EnderPi.Framework.Random;
+using EnderPi.Framework.Simulation.RandomnessTest;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -25,6 +26,10 @@ namespace EnderPi.Framework.Simulation.Genetic
         /// How fit this specimen is.  Higher values are better.
         /// </summary>
         public double Fitness { set; get; }
+
+        public AvalancheResult AvalancheResults { set; get; }
+
+        
 
         /// <summary>
         /// The generation this species was created during.
@@ -122,6 +127,7 @@ namespace EnderPi.Framework.Simulation.Genetic
 
         public RngSpecies(ConstraintMode modeOne, ConstraintMode modeTwo, bool useStateTwo)
         {
+            AvalancheResults = new AvalancheResult();
             _useStateTwo = useStateTwo;
             switch (modeOne)
             {
@@ -419,7 +425,10 @@ namespace EnderPi.Framework.Simulation.Genetic
                 }
             }
         }
-                
 
+        internal GeneticAvalancheFunction GetAvalancheFunction()
+        {
+            return new GeneticAvalancheFunction(_outputRoot.Evaluate());            
+        }
     }
 }

@@ -127,6 +127,19 @@ namespace EnderPi.Framework.Simulation.Genetic
             return x <= long.MaxValue ? x : x ^ (1UL << 63);
         }
 
+        /// <summary>
+        /// Returns the value of this as a constant.  Probably just throws if misused.
+        /// </summary>
+        /// <returns></returns>
+        public uint Fold32()
+        {
+            var context = new ExpressionContext();
+            context.Imports.AddType(typeof(Math));
+            var expressionStateOne = context.CompileGeneric<uint>(Evaluate());
+            var x = expressionStateOne.Evaluate();
+            return x;
+        }
+
         public TreeNode GetFirstChild()
         {
             return _children[0];

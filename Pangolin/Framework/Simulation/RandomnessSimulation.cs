@@ -139,6 +139,32 @@ namespace EnderPi.Framework.Simulation
                     _targetNumberOfIterations = Convert.ToInt64(11000);
                     _description = $"Level 6 Test, Engine: {_randomEngine}, Seed: {_seed}";
                     break;
+                case TestLevel.Twelve:
+                    _tests.Add(new GcdTest());
+                    _tests.Add(new GorillaTest(8));
+                    _tests.Add(new GorillaTest(16));
+                    _tests.Add(new MaurerByteTest());
+                    _tests.Add(new BitwiseLinear());
+                    _targetNumberOfIterations = Convert.ToInt64(1e10);
+                    _description = $"Level 12 Test, Engine: {_randomEngine}, Seed: {_seed}";
+                    break;
+                case TestLevel.Thirteen:
+                    _tests.Add(new GcdTest());
+                    _tests.Add(new GorillaTest(8));
+                    _tests.Add(new GorillaTest(16));
+                    _tests.Add(new GorillaTest(24));
+                    _tests.Add(new BirthdayTest());
+                    _tests.Add(new BitwiseLinear());
+                    _tests.Add(new ZeroTest());
+                    _tests.Add(new MaurerByteTest());
+                    _targetNumberOfIterations = Convert.ToInt64(1e10);
+                    _description = $"Level 13 Test, Engine: {_randomEngine}, Seed: {_seed}";
+                    break;
+                case TestLevel.Fourteen:
+                    _tests.Add(new MaurerByteTest());
+                    _targetNumberOfIterations = Convert.ToInt64(1e11);
+                    _description = $"Level 14 Test, Engine: {_randomEngine}, Seed: {_seed}";
+                    break;
             }
         }
 
@@ -206,6 +232,11 @@ namespace EnderPi.Framework.Simulation
                 testResults.Add(test.Result);
             }
             _overallResult = TestHelper.ReturnLowestConclusiveResultEnumerable(testResults);
+        }
+
+        public string GetFailedTest()
+        {
+            throw new NotImplementedException();
         }
 
         protected override void StoreFinalResults(ServiceProvider provider, int backgroundTaskId, bool persistState)

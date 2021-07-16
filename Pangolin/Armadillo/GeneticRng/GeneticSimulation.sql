@@ -20,5 +20,7 @@
     [AllowNotNodes] BIT NOT NULL,
     [AllowXorNodes] BIT NOT NULL,
     [Iterations] INT NULL,
-    [TimeCreated] DATETIME NULL
+    [TimeCreated] DATETIME NULL,
+    [FeistelRounds] INT NULL,
+    [IncludeAvalanche] BIT NULL
 )

@@ -237,5 +237,19 @@ namespace EnderPi.Framework.Simulation.RandomnessTest
             }
             return L;
         }
+
+        public static int CountBits(ulong n)
+        {
+            ulong count = 0;
+            while (n > 0)
+            {
+                count += n & 0x01; // checks the least significant bit of n
+                                   // if the bit is 1, count is incremented
+                n >>= 1; // shift all bits of n one to the right
+                         // if no 1 bits are left, n becomes 0 and the loop ends
+            }
+            return Convert.ToInt32(count);
+        }
+
     }
 }

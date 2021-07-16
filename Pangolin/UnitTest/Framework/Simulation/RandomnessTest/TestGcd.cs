@@ -27,6 +27,22 @@ namespace UnitTest.Framework.Simulation.RandomnessTest
             Assert.IsTrue(result != TestResult.Fail);            
         }
 
+        [Test]
+        public void TestRomul()
+        {
+            var engine = new Romul();
+            var gcdTest = new GcdTest();
+            gcdTest.Initialize();
+            for (int i = 0; i < 1000000000; i++)
+            {
+                gcdTest.Process(engine.Next64());
+            }
+            gcdTest.CalculateResult(true);
+            var result = gcdTest.Result;
+            Assert.IsTrue(result != TestResult.Fail);
+        }
+
+
         /// <summary>
         /// So this test creates a "bad" engine, then runs a Gcd test and verifies it fails.
         /// </summary>

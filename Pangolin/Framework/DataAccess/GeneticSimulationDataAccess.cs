@@ -54,6 +54,8 @@ namespace EnderPi.Framework.DataAccess
                     command.Parameters.Add("@AllowXorNodes", SqlDbType.Bit).Value = geneticSimulation.AllowXorNodes;
                     command.Parameters.Add("@Iterations", SqlDbType.Int).Value = geneticSimulation.Iterations;
                     command.Parameters.Add("@TimeCreated", SqlDbType.DateTime).Value = DateTime.Now;
+                    command.Parameters.Add("@FeistelRounds", SqlDbType.Int).Value = geneticSimulation.FeistelRounds;
+                    command.Parameters.Add("@IncludeAvalanche", SqlDbType.Bit).Value = geneticSimulation.IncludeAvalanche;
                     sqlConnection.Open();
                     return (int)command.ExecuteScalar();
                 }

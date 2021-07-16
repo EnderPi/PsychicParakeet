@@ -30,7 +30,7 @@ namespace EnderPi.Framework.Random
         }
 
         /// <summary>
-        /// Gets a cryptographically secure UInt64.  Useful for seeding.
+        /// Gets a cryptographically secure UInt64.  Useful for seeding.  Threadsafe.
         /// </summary>
         /// <returns>A UInt64</returns>
         public static UInt64 Crypto64()
@@ -201,7 +201,7 @@ namespace EnderPi.Framework.Random
                 return upper;
             }
             uint range = upper - lower + 1;
-            uint divided = Int32.MaxValue / range;
+            uint divided = uint.MaxValue / range;
             uint max = divided * range;
             uint random = Next32();
             while (random > max)

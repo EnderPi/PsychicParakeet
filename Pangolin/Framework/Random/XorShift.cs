@@ -15,6 +15,11 @@ namespace EnderPi.Framework.Random
             return _state = x;
         }
 
+        public XorShift()
+        {
+            Seed(Engine.Crypto64());
+        }
+
         public override void Seed(ulong seed)
         {
             _state = seed | 1UL;

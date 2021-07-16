@@ -36,6 +36,11 @@ namespace EnderPi.Framework.DataAccess
             return reader.IsDBNull(ordinal) ? (DateTime?)null : reader.GetDateTime(ordinal);
         }
 
+        public static long ReadNullableLong(SqlDataReader reader, int ordinal)
+        {
+            return reader.IsDBNull(ordinal) ? 0 : reader.GetInt64(ordinal);
+        }
+
         /// <summary>
         /// Converts the given time to a sql date time format appropriate for queries.  COnverts values less than sqldatetime Min to sqldatetimeMin.
         /// </summary>

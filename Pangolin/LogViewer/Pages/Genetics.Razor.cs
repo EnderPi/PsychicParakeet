@@ -79,6 +79,7 @@ namespace GeneticWeb.Pages
             _model.AllowRotateLeftNodes = true;
             _model.AllowRotateRightNodes = true;
             _model.AllowRindjael = false;
+            _model.IncludeAvalanche = false;
             _model.Iterations = 1;
         }
 

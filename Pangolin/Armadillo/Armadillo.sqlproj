@@ -131,6 +131,24 @@
     <Build Include="Simulations\MultiplyRotateLeft32.sql" />
     <Build Include="Simulations\InsertMultiplyRotate.sql" />
     <Build Include="Simulations\MultiplyRotate32Exists.sql" />
+    <Build Include="GeneticRng\FeistelRngSpecimens.sql" />
+    <Build Include="GeneticRng\FeistelRngKeys.sql" />
+    <Build Include="GeneticRng\CreateFeistelSpecimen.sql" />
+    <Build Include="GeneticRng\Feistel32Key.sql" />
+    <Build Include="GeneticRng\MarkFeistelSpecimenConverged.sql" />
+    <Build Include="Simulations\MultiplyRotate64.sql" />
+    <Build Include="Simulations\InsertMultiplyRotate64.sql" />
+    <Build Include="Simulations\MultiplyRotate64Exists.sql" />
+    <Build Include="Simulations\MultiplyRotate32Randomness.sql" />
+    <Build Include="Simulations\InsertMultiplyRotate32Randomness.sql" />
+    <Build Include="Simulations\MultiplyRotate32RandomnessExists.sql" />
+    <Build Include="Simulations\SelectNextLevel14Romul.sql" />
+    <Build Include="Simulations\UpdateRomulLevel14.sql" />
+    <Build Include="Simulations\InsertMultiplyRotate16.sql" />
+    <Build Include="Simulations\MultiplyRotate16.sql" />
+    <Build Include="Simulations\MultiplyRotate16Exists.sql" />
+    <Build Include="Simulations\Select16BitForFillIn.sql" />
+    <Build Include="Simulations\Update16Romul.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

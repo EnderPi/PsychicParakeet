@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Collections;
 
 namespace EnderPi.Framework.Random
 {
@@ -42,7 +41,7 @@ namespace EnderPi.Framework.Random
         /// </summary>
         /// <param name="n">The required number of random bits</param>
         /// <returns>An array of random bits</returns>
-        System.Collections.BitArray GetBits(int n);
+        BitArray GetBits(int n);
         /// <summary>
         /// Gets the next random double on [0,1)
         /// </summary>

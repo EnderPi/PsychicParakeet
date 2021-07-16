@@ -19,6 +19,11 @@ namespace EnderPi.Framework.Random
             return (x << k) | (x >> (32 - k));
         }
 
+        public static ushort RotateLeft(ushort x, int k)
+        {
+            return (ushort)((x << k) | (x >> (16 - k)));
+        }
+
         /// <summary>
         /// Converts the given byte array into an array of UInt64s, one-eighth the length.
         /// Used to convert hashes into UInt64s.
@@ -48,6 +53,16 @@ namespace EnderPi.Framework.Random
                 bytes[i] = _SBox[bytes[i]];
             }
             return BitConverter.ToUInt64(bytes, 0);
+        }
+
+        public static uint Rindjael32(uint x)
+        {
+            var bytes = BitConverter.GetBytes(x);
+            for (int i = 0; i < 4; i++)
+            {
+                bytes[i] = _SBox[bytes[i]];
+            }
+            return BitConverter.ToUInt32(bytes, 0);
         }
 
         /// <summary>
